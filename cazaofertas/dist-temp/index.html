@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="description" content="CazaOfertas - Encuentra y comparte las mejores ofertas en tiempo real" />
+    <meta name="theme-color" content="#4F46E5">
+    <title>CazaOfertas | Descuentos y ofertas en tiempo real</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Service Worker Registration Script -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+              console.error('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    </script>
+    <!-- Estilos críticos para prevenir parpadeo (flash of unstyled content) -->
+    <style>
+      body {
+        background-color: #111827; /* Fondo oscuro predeterminado */
+        color: #e5e7eb; /* Texto claro predeterminado */
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      
+      /* Estilos básicos para la sidebar mientras carga */
+      .sidebar-modern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        background: #141b2d;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+      
+      /* Hacer la sidebar visible en pantallas grandes por defecto */
+      @media (min-width: 1024px) {
+        .main-content {
+          margin-left: 280px;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-BlDEwxQf.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-TA_wDYrC.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-BJ93jQot.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DuAHm_pE.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

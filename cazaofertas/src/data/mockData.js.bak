@@ -1,0 +1,566 @@
+// Datos simulados para toda la aplicación
+import { v4 as uuidv4 } from 'uuid';
+
+// Utilidad para generar IDs
+export const generateId = () => uuidv4();
+
+// Datos de usuarios simulados
+export const users = [
+  {
+    id: 'user-1',
+    email: 'usuario1@ejemplo.com',
+    nombre: 'María García',
+    avatar_url: 'https://i.pravatar.cc/300?img=1',
+    created_at: '2024-01-15T10:00:00Z',
+    role: 'user',
+    verified: true,
+    notifications: [
+      {
+        id: 'notif-1',
+        title: '¡Nueva oferta en tu categoría favorita!',
+        message: 'Hay un nuevo descuento en Electrónica que te puede interesar',
+        created_at: '2024-05-11T15:30:00Z',
+        read: false
+      }
+    ],
+    favorites: ['offer-1', 'offer-3']
+  },
+  {
+    id: 'user-2',
+    email: 'admin@cazaofertas.com',
+    nombre: 'Carlos Rodríguez',
+    avatar_url: 'https://i.pravatar.cc/300?img=2',
+    created_at: '2024-01-10T08:30:00Z',
+    role: 'admin',
+    verified: true,
+    notifications: [],
+    favorites: []
+  },
+  {
+    id: 'user-3',
+    email: 'laura@ejemplo.com',
+    nombre: 'Laura Martínez',
+    avatar_url: 'https://i.pravatar.cc/300?img=3',
+    created_at: '2024-02-20T14:15:00Z',
+    role: 'user',
+    verified: true,
+    notifications: [],
+    favorites: ['offer-2']
+  }
+];
+
+// Categorías simuladas con imágenes reales y descripciones detalladas
+export const categories = [
+  {
+    id: 1,
+    nombre: 'Electrónica',
+    slug: 'electronica',
+    imagen: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=2070',
+    descripcion: 'Ofertas en smartphones, portátiles, tablets y todo tipo de gadgets'
+  },
+  {
+    id: 2,
+    nombre: 'Moda',
+    slug: 'moda',
+    imagen: 'https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071',
+    descripcion: 'Las últimas tendencias en ropa, calzado y accesorios con los mejores descuentos'
+  },
+  {
+    id: 3,
+    nombre: 'Hogar',
+    slug: 'hogar',
+    imagen: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069',
+    descripcion: 'Todo para tu casa: muebles, decoración, electrodomésticos y más'
+  },
+  {
+    id: 4,
+    nombre: 'Videojuegos',
+    slug: 'videojuegos',
+    imagen: 'https://images.unsplash.com/photo-1580327344181-c1163234e5a0?q=80&w=2067',
+    descripcion: 'Encuentra las mejores ofertas en juegos, consolas y accesorios gaming'
+  },
+  {
+    id: 5,
+    nombre: 'Deportes',
+    slug: 'deportes',
+    imagen: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=2070',
+    descripcion: 'Equipamiento deportivo, ropa técnica y accesorios para todo tipo de deportes'
+  },
+  {
+    id: 6,
+    nombre: 'Viajes',
+    slug: 'viajes',
+    imagen: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=2070',
+    descripcion: 'Chollos en vuelos, hoteles y paquetes vacacionales'
+  }
+];
+
+// Tiendas simuladas con datos realistas
+export const stores = [
+  {
+    id: 'store-1',
+    name: 'Amazon',
+    slug: 'amazon',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg',
+    url: 'https://www.amazon.es',
+    descripcion: 'El marketplace más grande del mundo',
+    rating: 4.5,
+    totalOffers: 245,
+    activeOffers: 180,
+    categories: [1, 2, 3, 4, 5]
+  },
+  {
+    id: 'store-2',
+    name: 'PcComponentes',
+    slug: 'pccomponentes',
+    logo: 'https://cdn.pccomponentes.com/img/repositorio/logo/logo-pccomponentes.svg',
+    url: 'https://www.pccomponentes.com',
+    descripcion: 'Tu tienda de informática y tecnología',
+    rating: 4.3,
+    totalOffers: 156,
+    activeOffers: 89,
+    categories: [1, 4]
+  },
+  {
+    id: 'store-3',
+    name: 'El Corte Inglés',
+    slug: 'el-corte-ingles',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/El_Corte_Ingl%C3%A9s_logo.svg/2560px-El_Corte_Ingl%C3%A9s_logo.svg.png',
+    url: 'https://www.elcorteingles.es',
+    descripcion: 'Los mejores productos con la garantía de El Corte Inglés',
+    rating: 4.4,
+    totalOffers: 198,
+    activeOffers: 145,
+    categories: [1, 2, 3, 4, 5, 6]
+  },
+  {
+    id: 'store-4',
+    name: 'Zara',
+    slug: 'zara',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Zara_Logo.svg/2560px-Zara_Logo.svg.png',
+    url: 'https://www.zara.com',
+    descripcion: 'Las últimas tendencias en moda',
+    rating: 4.2,
+    totalOffers: 120,
+    activeOffers: 78,
+    categories: [2]
+  }
+];
+
+// Ofertas simuladas (array mutable)
+export let offers = [
+  {
+    id: 'offer-1',
+    title: 'MacBook Pro M2',
+    slug: 'macbook-pro-m2-oferta',
+    description: 'MacBook Pro 14" con chip M2 Pro, 16GB RAM, 512GB SSD - Space Gray',
+    current_price: 1899,
+    original_price: 2249,
+    url: 'https://www.amazon.es/macbook-pro',
+    store: 'Amazon',
+    store_id: 'store-1',
+    category_id: 1,
+    image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4',
+    user_id: 'user-1',
+    created_at: '2024-05-01T10:00:00Z',
+    votes: 125,
+    comments: []
+  },
+  {
+    id: 'offer-2',
+    title: 'PS5 + God of War Ragnarök',
+    slug: 'ps5-god-of-war-bundle',
+    description: 'PlayStation 5 Edición Digital + God of War Ragnarök + 2º DualSense',
+    current_price: 499,
+    original_price: 599,
+    url: 'https://www.pccomponentes.com/ps5',
+    store: 'PcComponentes',
+    store_id: 'store-2',
+    category_id: 4,
+    image_url: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3',
+    user_id: 'user-2',
+    created_at: '2024-05-02T15:30:00Z',
+    votes: 89,
+    comments: []
+  },
+  {
+    id: 'offer-3',
+    title: 'Samsung QLED 4K 65"',
+    slug: 'samsung-qled-65-oferta',
+    description: 'Smart TV Samsung QLED 4K 65" Q80B 2022 con Alexa integrada',
+    current_price: 899,
+    original_price: 1299,
+    url: 'https://www.elcorteingles.es/samsung-tv',
+    store: 'El Corte Inglés',
+    store_id: 'store-3',
+    category_id: 1,
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1',
+    user_id: 'user-1',
+    created_at: '2024-05-10T09:15:00Z',
+    votes: 45,
+    comments: []
+  },
+  {
+    id: 'offer-4',
+    title: 'Vestido Limited Edition',
+    slug: 'vestido-limited-edition',
+    description: 'Vestido midi estampado colección limitada',
+    current_price: 29.99,
+    original_price: 49.99,
+    url: 'https://www.zara.com/vestido',
+    store: 'Zara',
+    store_id: 'store-4',
+    category_id: 2,
+    image_url: 'https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03',
+    user_id: 'user-3',
+    created_at: '2024-05-11T11:20:00Z',
+    votes: 67,
+    comments: []
+  }
+];
+
+// Add a delay to simulate network latency
+export const simulateDelay = async (min = 300, max = 800) => {
+  await new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
+};
+
+// Estado de autenticación simulado
+let currentSession = null;
+
+// Simulación de autenticación mejorada
+export const simulateAuth = {
+  login: async (email, password) => {
+    await simulateDelay();
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      return { data: null, error: new Error('Usuario no encontrado') };
+    }
+    if (!user.verified) {
+      return { data: null, error: new Error('Por favor verifica tu email primero') };
+    }
+    currentSession = { user };
+    return { data: { session: currentSession }, error: null };
+  },
+
+  register: async (email, password, nombre) => {
+    await simulateDelay();
+    if (users.some(u => u.email === email)) {
+      return { data: null, error: new Error('Email ya registrado') };
+    }
+    const newUser = {
+      id: generateId(),
+      email,
+      nombre,
+      avatar_url: `https://i.pravatar.cc/300?u=${email}`,
+      created_at: new Date().toISOString(),
+      role: 'user',
+      verified: false,
+      notifications: [],
+      favorites: []
+    };
+    users.push(newUser);
+    // No establecemos la sesión hasta que el email esté verificado
+    return { data: { user: newUser }, error: null };
+  },
+
+  verifyEmail: async (token) => {
+    await simulateDelay();
+    const user = users.find(u => u.id === token || u.email === token);
+    if (user) {
+      user.verified = true;
+      return { data: { user }, error: null };
+    }
+    return { data: null, error: new Error('Token de verificación inválido') };
+  },
+
+  createUserProfile: async (userId, profileData) => {
+    await simulateDelay();
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      Object.assign(user, profileData);
+      return { data: user, error: null };
+    }
+    return { data: null, error: new Error('Usuario no encontrado') };
+  },
+
+  findUserByEmail: (email) => {
+    return users.find(u => u.email === email);
+  },
+
+  logout: async () => {
+    await simulateDelay();
+    currentSession = null;
+    return { error: null };
+  },
+
+  getSession: () => {
+    return { data: { session: currentSession }, error: null };
+  },
+
+  getUser: () => {
+    return currentSession?.user || null;
+  },
+
+  updateUserProfile: async (profile) => {
+    await simulateDelay();
+    const userIndex = users.findIndex(u => u.id === profile.id);
+    if (userIndex >= 0) {
+      users[userIndex] = { ...users[userIndex], ...profile };
+      if (currentSession?.user?.id === profile.id) {
+        currentSession.user = users[userIndex];
+      }
+      return { data: users[userIndex], error: null };
+    }
+    return { data: null, error: new Error('Usuario no encontrado') };
+  }
+};
+
+// Funciones de gestión de datos
+export const dataManager = {
+  // Ofertas
+  getOffers: async () => {
+    await simulateDelay();
+    return { data: offers, error: null };
+  },
+
+  getOfferById: async (id) => {
+    await simulateDelay();
+    const offer = offers.find(o => o.id === id);
+    return offer ? { data: offer, error: null } : { data: null, error: new Error('Oferta no encontrada') };
+  },
+
+  createOffer: async (offerData) => {
+    await simulateDelay();
+    const newOffer = {
+      id: uuidv4(),
+      slug: offerData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      created_at: new Date().toISOString(),
+      votes: 0,
+      comments: [],
+      ...offerData
+    };
+    offers.push(newOffer);
+    return { data: newOffer, error: null };
+  },
+
+  updateOffer: async (id, updates) => {
+    await simulateDelay();
+    const index = offers.findIndex(o => o.id === id);
+    if (index !== -1) {
+      offers[index] = { ...offers[index], ...updates };
+      return { data: offers[index], error: null };
+    }
+    return { data: null, error: new Error('Oferta no encontrada') };
+  },
+
+  deleteOffer: async (id) => {
+    await simulateDelay();
+    const index = offers.findIndex(o => o.id === id);
+    if (index !== -1) {
+      offers.splice(index, 1);
+      return { error: null };
+    }
+    return { error: new Error('Oferta no encontrada') };
+  },
+
+  // Votos y comentarios
+  voteOffer: async (offerId, userId, isPositive = true) => {
+    await simulateDelay();
+    const offer = offers.find(o => o.id === offerId);
+    if (offer) {
+      offer.votes += isPositive ? 1 : -1;
+      return { data: offer, error: null };
+    }
+    return { data: null, error: new Error('Oferta no encontrada') };
+  },
+
+  addComment: async (offerId, userId, text) => {
+    await simulateDelay();
+    const offer = offers.find(o => o.id === offerId);
+    if (offer) {
+      const comment = {
+        id: uuidv4(),
+        user_id: userId,
+        text,
+        created_at: new Date().toISOString()
+      };
+      offer.comments.push(comment);
+      return { data: comment, error: null };
+    }
+    return { data: null, error: new Error('Oferta no encontrada') };
+  },
+
+  // Storage simulado
+  uploadFile: async (file, path) => {
+    await simulateDelay();
+    // Simular URL de imagen
+    const fileUrl = `https://fake-storage.com/${path}`;
+    return { data: { path: fileUrl, url: fileUrl }, error: null };
+  }
+};
+
+// Funciones de utilidad para ofertas
+export const getOffersByCategory = (categoryId) => {
+  return offers.filter(offer => offer.category_id === categoryId);
+};
+
+export const getOffersByStore = (storeId) => {
+  return offers.filter(offer => offer.store_id === storeId);
+};
+
+export const searchOffers = (query) => {
+  query = query.toLowerCase();
+  return offers.filter(offer => 
+    offer.title.toLowerCase().includes(query) ||
+    offer.description.toLowerCase().includes(query)
+  );
+};
+
+export const getOfferBySlug = (slug) => {
+  return offers.find(offer => offer.slug === slug);
+};
+
+export const getRecentOffers = (limit = 10) => {
+  return [...offers]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, limit);
+};
+
+export const getPopularOffers = (limit = 10) => {
+  return [...offers]
+    .sort((a, b) => b.votes - a.votes)
+    .slice(0, limit);
+};
+
+export const getBestDiscountOffers = (limit = 10) => {
+  return [...offers]
+    .sort((a, b) => {
+      const discountA = ((a.original_price - a.current_price) / a.original_price) * 100;
+      const discountB = ((b.original_price - b.current_price) / b.original_price) * 100;
+      return discountB - discountA;
+    })
+    .slice(0, limit);
+};
+
+export const addOffer = (offerData) => {
+  const newOffer = {
+    id: generateId(),
+    slug: offerData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    created_at: new Date().toISOString(),
+    votes: 0,
+    comments: [],
+    ...offerData
+  };
+  offers.push(newOffer);
+  return newOffer;
+};
+
+export const updateOffer = (id, updates) => {
+  const index = offers.findIndex(o => o.id === id);
+  if (index !== -1) {
+    offers[index] = { ...offers[index], ...updates };
+    return offers[index];
+  }
+  return null;
+};
+
+export const deleteOffer = (id) => {
+  const index = offers.findIndex(o => o.id === id);
+  if (index !== -1) {
+    offers.splice(index, 1);
+    return true;
+  }
+  return false;
+};
+
+export const voteOffer = (offerId, userId, isUpvote = true) => {
+  const offer = offers.find(o => o.id === offerId);
+  if (offer) {
+    // Simulación simple de votos
+    offer.votes += isUpvote ? 1 : -1;
+    return offer;
+  }
+  return null;
+};
+
+export const addComment = (offerId, userId, text) => {
+  const offer = offers.find(o => o.id === offerId);
+  if (offer) {
+    const comment = {
+      id: generateId(),
+      user_id: userId,
+      text,
+      created_at: new Date().toISOString()
+    };
+    offer.comments.push(comment);
+    return comment;
+  }
+  return null;
+};
+
+// Funciones de utilidad para usuarios
+export const findUserByEmail = (email) => {
+  return users.find(u => u.email === email);
+};
+
+export const createUser = (userData) => {
+  const newUser = {
+    id: generateId(),
+    created_at: new Date().toISOString(),
+    verified: false,
+    notifications: [],
+    favorites: [],
+    role: 'user',
+    ...userData
+  };
+  users.push(newUser);
+  return newUser;
+};
+
+export const updateUser = (userId, updates) => {
+  const index = users.findIndex(u => u.id === userId);
+  if (index !== -1) {
+    users[index] = { ...users[index], ...updates };
+    return users[index];
+  }
+  return null;
+};
+
+export const getUserById = (userId) => {
+  return users.find(u => u.id === userId);
+};
+
+// Funciones de notificaciones
+export const addNotification = (userId, notification) => {
+  const user = users.find(u => u.id === userId);
+  if (user) {
+    const newNotification = {
+      id: generateId(),
+      created_at: new Date().toISOString(),
+      read: false,
+      ...notification
+    };
+    user.notifications.unshift(newNotification);
+    return newNotification;
+  }
+  return null;
+};
+
+export const markNotificationAsRead = (userId, notificationId) => {
+  const user = users.find(u => u.id === userId);
+  if (user) {
+    const notification = user.notifications.find(n => n.id === notificationId);
+    if (notification) {
+      notification.read = true;
+      return true;
+    }
+  }
+  return false;
+};
+
+export const getUserNotifications = (userId) => {
+  const user = users.find(u => u.id === userId);
+  return user ? user.notifications : [];
+};
+
+// La función simulateDelay ya está definida arriba

@@ -1,0 +1,1349 @@
+// Versión simulada sin dependencias externas
+// Todo el scraping se reemplaza por datos pre-cargados
+
+// Cache para almacenar resultados pre-cargados
+const cache = {
+  images: {
+    // Datos pre-cargados para evitar peticiones reales
+    'iphone 15': 'https://images.unsplash.com/photo-1697559629937-8afed676f52c?q=80&w=2070',
+    'samsung tv': 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=2057',
+    'nintendo switch': 'https://images.unsplash.com/photo-1617096200347-cb04ae810b1d?q=80&w=2070',
+    'playstation 5': 'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?q=80&w=2264',
+    'laptop': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2020',
+    'zapatillas': 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=2187',
+    'roomba': 'https://images.unsplash.com/photo-1679679195912-28a666c501ce?q=80&w=2070',
+    'bicicleta': 'https://images.unsplash.com/photo-1511994298241-608e28f14fde?q=80&w=2070',
+    'freidora aire': 'https://images.unsplash.com/photo-1626074961596-cab914d9392e?q=80&w=1964',
+    'chaqueta': 'https://images.unsplash.com/photo-1544642899-f0d6e5f6ed6f?q=80&w=1974'
+  },
+  specs: {},
+  descriptions: {},
+  // Caducidad del cache: 24 horas
+  expiry: 24 * 60 * 60 * 1000
+};
+
+// URLs base para búsqueda de productos (simuladas)
+const SEARCH_ENGINES = {
+  google: 'https://www.google.com/search?q=',
+  googleImages: 'https://www.google.com/search?tbm=isch&q=',
+  amazon: 'https://www.amazon.es/s?k=',
+  pccomponentes: 'https://www.pccomponentes.com/buscar/?query=',
+  aliexpress: 'https://es.aliexpress.com/wholesale?SearchText='
+};
+
+// Opciones para las peticiones HTTP (para mostrar realismo)
+const requestOptions = {
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Referer': 'https://www.google.com/'
+  },
+  timeout: 10000
+};
+
+// Lista de logos predefinidos para tiendas populares
+const storeLogos = {
+  'Amazon': 'https://logo.clearbit.com/amazon.com',
+  'El Corte Inglés': 'https://logo.clearbit.com/elcorteingles.es',
+  'MediaMarkt': 'https://logo.clearbit.com/mediamarkt.es',
+  'PC Componentes': 'https://logo.clearbit.com/pccomponentes.com',
+  'PcComponentes': 'https://logo.clearbit.com/pccomponentes.com',
+  'Zara': 'https://logo.clearbit.com/zara.com',
+  'Carrefour': 'https://logo.clearbit.com/carrefour.es',
+  'Decathlon': 'https://logo.clearbit.com/decathlon.es',
+  'Alcampo': 'https://logo.clearbit.com/alcampo.es',
+  'Leroy Merlin': 'https://logo.clearbit.com/leroymerlin.es',
+  'IKEA': 'https://logo.clearbit.com/ikea.com',
+  'Fnac': 'https://logo.clearbit.com/fnac.es',
+  'FNAC': 'https://logo.clearbit.com/fnac.es',
+  'Nike': 'https://logo.clearbit.com/nike.com',
+  'Adidas': 'https://logo.clearbit.com/adidas.com',
+  'GAME': 'https://logo.clearbit.com/game.es',
+  'Lidl': 'https://logo.clearbit.com/lidl.es',
+  'Mercadona': 'https://logo.clearbit.com/mercadona.es',
+  'Pull & Bear': 'https://logo.clearbit.com/pullandbear.com',
+  'H&M': 'https://logo.clearbit.com/hm.com',
+  'Steam': 'https://logo.clearbit.com/steampowered.com',
+  'PlayStation Store': 'https://logo.clearbit.com/playstation.com',
+  'Microsoft Store': 'https://logo.clearbit.com/microsoft.com',
+  'Booking.com': 'https://logo.clearbit.com/booking.com',
+  'Airbnb': 'https://logo.clearbit.com/airbnb.com',
+  'Douglas': 'https://logo.clearbit.com/douglas.es',
+  'Druni': 'https://logo.clearbit.com/druni.es',
+  'Sephora': 'https://logo.clearbit.com/sephora.es',
+  'Casa del Libro': 'https://logo.clearbit.com/casadellibro.com',
+  'Sprinter': 'https://logo.clearbit.com/sprinter.es',
+};
+
+/**
+ * Limpia y formatea el término de búsqueda para optimizar resultados
+ */
+const formatSearchTerm = (productName, category = '') => {
+  let searchTerm = productName
+    .toLowerCase()
+    .replace(/[^\w\s]/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  // Añadir la categoría a la búsqueda si está disponible
+  if (category && !searchTerm.includes(category.toLowerCase())) {
+    searchTerm = `${searchTerm} ${category.toLowerCase()}`;
+  }
+  
+  return encodeURIComponent(searchTerm);
+};
+
+/**
+ * Obtiene imágenes reales de productos mediante scraping
+ */
+export const fetchProductImages = async (productName, category = '', count = 4) => {
+  try {
+    // Para evitar problemas de CORS, devolvemos imágenes placeholder
+    return [
+      'https://placehold.co/600x400?text=Imagen+Principal',
+      'https://placehold.co/600x400?text=Imagen+Secundaria',
+      'https://placehold.co/600x400?text=Detalle+Producto',
+      'https://placehold.co/600x400?text=Vista+Trasera'
+    ].slice(0, count);
+  } catch (error) {
+    console.error('Error fetching product images:', error);
+    return [
+      'https://via.placeholder.com/400x400?text=Producto',
+      'https://via.placeholder.com/400x400?text=No+Disponible'
+    ].slice(0, count);
+  }
+};
+
+/**
+ * Obtiene una descripción enriquecida del producto
+ */
+export const fetchProductDescription = async (productName, category = '') => {
+  try {
+    console.log('Simulando búsqueda de descripción para:', productName);
+    
+    // Simulamos un pequeño retraso para que parezca real
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Descripción generada para productos comunes
+    const descriptions = {
+      'iphone': 'El iPhone es un smartphone de Apple con pantalla de alta resolución, cámara avanzada y sistema operativo iOS. Diseño elegante en aluminio y vidrio, con procesador potente para un rendimiento fluido en cualquier aplicación.',
+      'samsung': 'Los televisores Samsung ofrecen calidad de imagen excepcional con tecnología QLED o OLED, Smart TV con Tizen OS, y diseño minimalista. Compatible con múltiples asistentes de voz y aplicaciones de streaming.',
+      'nintendo': 'La Nintendo Switch es una consola híbrida que permite jugar tanto en modo portátil como conectada al televisor. Incluye Joy-Con desmontables y una amplia biblioteca de juegos exclusivos para toda la familia.',
+      'playstation': 'La PlayStation 5 ofrece gráficos en 4K, tiempos de carga ultrarrápidos gracias a su SSD personalizado y un innovador control DualSense con retroalimentación háptica y gatillos adaptativos para una inmersión total.',
+      'laptop': 'Este portátil combina rendimiento y portabilidad con una pantalla de alta definición, procesador de última generación, y almacenamiento SSD para un arranque rápido. Ideal para trabajo o entretenimiento con gran autonomía de batería.',
+      'zapatillas': 'Zapatillas deportivas con tecnología de amortiguación avanzada, suela resistente a la abrasión y parte superior transpirable. Diseñadas para máximo confort durante actividades deportivas o uso diario.',
+      'roomba': 'El robot aspirador Roomba navega inteligentemente por tu hogar para una limpieza eficiente. Con sistema de mapeo, detección de obstáculos y programación desde el móvil. Compatible con asistentes de voz y de fácil mantenimiento.',
+      'bicicleta': 'Bicicleta construida con materiales ligeros y resistentes, con cambios precisos y sistema de frenado fiable. Diseñada para ofrecer comodidad en rutas largas con una geometría que favorece una postura adecuada.',
+      'freidora': 'Esta freidora de aire utiliza tecnología de circulación de aire caliente para cocinar alimentos con hasta un 90% menos de aceite. Fácil de usar con controles digitales, múltiples programas preestablecidos y limpieza sencilla.',
+      'chaqueta': 'Chaqueta confeccionada con materiales de alta calidad que ofrecen protección contra el viento y el agua. Diseño versátil con múltiples bolsillos, ideal para uso cotidiano o actividades al aire libre.'
+    };
+    
+    // Buscamos coincidencias parciales en el nombre del producto
+    let description = 'Este producto destaca por su relación calidad-precio. Fabricado con materiales de primera calidad y atención al detalle para garantizar durabilidad y satisfacción.';
+    
+    for (const [key, value] of Object.entries(descriptions)) {
+      if (productName.toLowerCase().includes(key)) {
+        description = value;
+        break;
+      }
+    }
+    
+    return description;
+  } catch (error) {
+    console.error('Error fetching product description:', error);
+    return 'Descripción no disponible en este momento. Por favor, consulta la página del vendedor para más información sobre este producto.';
+  }
+};
+
+/**
+ * Obtiene especificaciones técnicas del producto
+ */
+export const fetchProductSpecs = async (productName, category = '') => {
+  try {
+    console.log('Simulando búsqueda de especificaciones para:', productName);
+    
+    // Simulamos un pequeño retraso para que parezca real
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Especificaciones predefinidas por categoría y tipo de producto
+    const specs = {
+      'electronica': {
+        'iphone': [
+          'Pantalla Super Retina XDR de 6.1 pulgadas',
+          'Chip A15 Bionic',
+          'Sistema de cámaras Pro de 12MP',
+          'iOS 16',
+          'Batería para todo el día',
+          'Face ID'
+        ],
+        'samsung tv': [
+          'Pantalla QLED 4K de 55 pulgadas',
+          'Procesador Quantum 4K',
+          'Smart TV con Tizen',
+          'HDR10+',
+          'Conectividad HDMI y USB',
+          'Sonido envolvente 3D'
+        ],
+        'laptop': [
+          'Procesador Intel Core i7 / AMD Ryzen 7',
+          'Memoria RAM de 16GB',
+          'Almacenamiento SSD de 512GB',
+          'Pantalla Full HD de 15.6 pulgadas',
+          'Tarjeta gráfica NVIDIA GeForce',
+          'Sistema operativo Windows 11'
+        ],
+        'default': [
+          'Producto de alta calidad',
+          'Garantía del fabricante',
+          'Soporte técnico disponible',
+          'Compatible con los principales estándares'
+        ]
+      },
+      'videojuegos': {
+        'nintendo switch': [
+          'Pantalla táctil de 6.2 pulgadas',
+          'Resolución 720p en modo portátil',
+          'Modo TV con salida 1080p',
+          'Joy-Con desmontables',
+          'Batería de 4.5-9 horas',
+          'Almacenamiento de 32GB ampliable'
+        ],
+        'playstation 5': [
+          'CPU AMD Zen 2 personalizado',
+          'GPU AMD RDNA 2 personalizada',
+          'SSD ultrarrápido de 825GB',
+          'Soporte para resolución 8K',
+          'Ray tracing acelerado por hardware',
+          'Controlador DualSense con retroalimentación háptica'
+        ],
+        'default': [
+          'Producto oficial',
+          'Incluye todos los accesorios estándar',
+          'Compatible con la última generación',
+          'Experiencia de juego mejorada'
+        ]
+      },
+      'hogar': {
+        'roomba': [
+          'Sistema de navegación inteligente',
+          'Batería de larga duración',
+          'Programación vía aplicación móvil',
+          'Sensores de detección de obstáculos',
+          'Compatible con asistentes de voz',
+          'Depósito de polvo de fácil vaciado'
+        ],
+        'freidora aire': [
+          'Capacidad de 5.5 litros',
+          'Pantalla táctil digital',
+          'Temperatura ajustable 80°C-200°C',
+          '8 programas preestablecidos',
+          'Cesta antiadherente y apta para lavavajillas',
+          'Temporizador de 60 minutos'
+        ],
+        'default': [
+          'Diseño moderno y funcional',
+          'Materiales duraderos y fáciles de limpiar',
+          'Bajo consumo energético',
+          'Fabricado según normativas europeas'
+        ]
+      },
+      'moda': {
+        'zapatillas': [
+          'Material exterior: sintético y malla transpirable',
+          'Suela de goma resistente a la abrasión',
+          'Plantilla acolchada extraíble',
+          'Sistema de amortiguación',
+          'Disponible en varias tallas',
+          'Diseño ligero y flexible'
+        ],
+        'chaqueta': [
+          'Material exterior resistente al agua',
+          'Forro interior cálido',
+          'Múltiples bolsillos con cremallera',
+          'Capucha ajustable',
+          'Puños elásticos',
+          'Disponible en varias tallas y colores'
+        ],
+        'default': [
+          'Material de alta calidad',
+          'Fabricación cuidada',
+          'Diseño actual',
+          'Diferentes opciones disponibles'
+        ]
+      },
+      'deportes': {
+        'bicicleta': [
+          'Cuadro de aluminio ligero',
+          'Cambio Shimano de 21 velocidades',
+          'Frenos de disco hidráulicos',
+          'Ruedas de 29 pulgadas',
+          'Suspensión delantera ajustable',
+          'Peso aproximado: 13kg'
+        ],
+        'default': [
+          'Materiales resistentes',
+          'Diseñado para máximo rendimiento',
+          'Ergonomía optimizada',
+          'Apto para uso intensivo'
+        ]
+      },
+      'default': [
+        'Producto de calidad',
+        'Relación calidad-precio excelente',
+        'Garantía del fabricante',
+        'Envío rápido disponible'
+      ]
+    };
+    
+    // Buscar la categoría adecuada
+    let categoryKey = category.toLowerCase();
+    if (!specs[categoryKey]) {
+      categoryKey = 'default';
+    }
+    
+    // Buscar coincidencias en el nombre del producto
+    let productSpecs = specs[categoryKey].default;
+    for (const [key, value] of Object.entries(specs[categoryKey])) {
+      if (key !== 'default' && productName.toLowerCase().includes(key)) {
+        productSpecs = value;
+        break;
+      }
+    }
+    
+    return productSpecs;
+  } catch (error) {
+    console.error('Error fetching product specs:', error);
+    return ['Especificaciones no disponibles en este momento.'];
+  }
+};
+
+/**
+ * Busca el logo de una tienda
+ */
+export const fetchStoreLogo = async (storeName) => {
+  try {
+    console.log('Buscando logo para tienda:', storeName);
+    
+    // Comprobar si tenemos un logo predefinido para esta tienda
+    if (storeLogos[storeName]) {
+      return storeLogos[storeName];
+    }
+    
+    // Si no lo tenemos, devolver un logo genérico basado en la primera letra
+    const fallbackLogo = `https://via.placeholder.com/150/0984e3/FFFFFF?text=${storeName.charAt(0).toUpperCase()}`;
+    return fallbackLogo;
+  } catch (error) {
+    console.error('Error fetching store logo:', error);
+    return 'https://via.placeholder.com/150/777777/FFFFFF?text=?';
+  }
+};
+
+/**
+ * Genera precios actuales y originales coherentes
+ */
+export const generatePriceData = (basePrice, maxDiscount = 40) => {
+  // Asegurar que el precio base es un número
+  const price = parseFloat(basePrice);
+  if (isNaN(price) || price <= 0) {
+    return {
+      currentPrice: 29.99,
+      originalPrice: 49.99,
+      discountPercentage: 40
+    };
+  }
+  
+  // Generar un descuento aleatorio entre 5% y maxDiscount%
+  const discountPercentage = Math.floor(Math.random() * (maxDiscount - 5 + 1)) + 5;
+  
+  // Calcular el precio original a partir del precio actual y el descuento
+  const originalPrice = parseFloat((price / (1 - discountPercentage / 100)).toFixed(2));
+  
+  return {
+    currentPrice: price,
+    originalPrice,
+    discountPercentage
+  };
+};
+
+/**
+ * Obtiene imágenes reales de productos mediante búsqueda simulada
+ */
+export const fetchProductImage = async (productName, category = '') => {
+  try {
+    console.log('Simulando búsqueda de imagen para:', productName);
+    
+    // Simulamos un pequeño retraso para que parezca real
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    // Comprobar si tenemos una imagen en caché para este término
+    const searchTerm = productName.toLowerCase();
+    let imageUrl;
+    
+    for (const [key, value] of Object.entries(cache.images)) {
+      if (searchTerm.includes(key)) {
+        imageUrl = value;
+        break;
+      }
+    }
+    
+    // Si no encontramos coincidencia, usar una imagen de placeholder
+    if (!imageUrl) {
+      imageUrl = `https://via.placeholder.com/600x400/0984e3/FFFFFF?text=${encodeURIComponent(productName)}`;
+    }
+    
+    return imageUrl;
+  } catch (error) {
+    console.error('Error fetching product image:', error);
+    return 'https://via.placeholder.com/400x400?text=Imagen+No+Disponible';
+  }
+};
+
+/**
+ * Verifica la disponibilidad de un producto basado en el nombre
+ */
+export const checkProductAvailability = async (productName, storeUrl) => {
+  try {
+    console.log('Verificando disponibilidad de:', productName);
+    
+    // Simulamos un pequeño retraso para que parezca real
+    await new Promise(resolve => setTimeout(resolve, 700));
+    
+    // Simulamos disponibilidad aleatoria pero con más probabilidad de estar disponible
+    const randomValue = Math.random();
+    if (randomValue < 0.8) {
+      return {
+        available: true,
+        estimatedDelivery: generarFechaEntrega(),
+        status: 'En stock'
+      };
+    } else if (randomValue < 0.9) {
+      return {
+        available: true,
+        estimatedDelivery: generarFechaEntrega(7, 15),
+        status: 'Pocas unidades disponibles'
+      };
+    } else {
+      return {
+        available: false,
+        estimatedDelivery: null,
+        status: 'Agotado temporalmente'
+      };
+    }
+  } catch (error) {
+    console.error('Error checking product availability:', error);
+    return {
+      available: false,
+      estimatedDelivery: null,
+      status: 'Error al verificar disponibilidad'
+    };
+  }
+};
+
+/**
+ * Función auxiliar para generar fecha de entrega estimada
+ */
+function generarFechaEntrega(minDias = 2, maxDias = 5) {
+  const hoy = new Date();
+  const diasEntrega = Math.floor(Math.random() * (maxDias - minDias + 1)) + minDias;
+  const fechaEntrega = new Date(hoy);
+  fechaEntrega.setDate(hoy.getDate() + diasEntrega);
+  
+  return fechaEntrega.toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+}
+
+/**
+ * Verifica si una URL es válida y está activa
+ */
+export const validateProductUrl = async (url) => {
+  try {
+    // En lugar de hacer una petición real, simulamos validación
+    console.log('Validando URL:', url);
+    
+    // Simulamos un pequeño retraso para que parezca real
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Comprobar que la URL tiene formato correcto
+    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocolo
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // dominio
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // O dirección IP
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // puerto y ruta
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // parámetros de consulta
+      '(\\#[-a-z\\d_]*)?$','i'); // fragmento
+    
+    // Si la URL no tiene formato correcto, devolvemos error
+    if (!urlPattern.test(url)) {
+      return {
+        valid: false,
+        error: 'La URL no tiene un formato válido'
+      };
+    }
+    
+    // Verificar si la URL contiene dominios conocidos de tiendas
+    const knownStores = [
+      'amazon', 'elcorteingles', 'mediamarkt', 'pccomponentes', 
+      'carrefour', 'decathlon', 'aliexpress', 'zara', 'ikea', 
+      'fnac', 'game', 'nike', 'adidas', 'lidl', 'mercadona'
+    ];
+    
+    const isKnownStore = knownStores.some(store => url.includes(store));
+    
+    if (!isKnownStore) {
+      return {
+        valid: true,
+        warning: 'La URL parece válida pero no pertenece a una tienda conocida.',
+        status: 'unknown'
+      };
+    }
+    
+    return {
+      valid: true,
+      status: 'active'
+    };
+  } catch (error) {
+    console.error('Error validating URL:', error);
+    return {
+      valid: false,
+      error: 'Error al validar la URL'
+    };
+  }
+};
+
+/**
+ * Extrae información de un producto desde una URL
+ */
+export const extractProductInfo = async (url) => {
+  try {
+    console.log('Extrayendo información de producto desde URL:', url);
+    
+    // Simulamos un pequeño retraso para que parezca real
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    // Extraer el dominio para identificar la tienda
+    let storeName = 'Tienda desconocida';
+    let productName = 'Producto desconocido';
+    let price = 0;
+    let category = '';
+    
+    // Extraer información basada en patrones de URL conocidos
+    if (url.includes('amazon')) {
+      storeName = 'Amazon';
+      // Extraer nombre del producto de URLs de Amazon
+      const titleMatch = url.match(/\/([^\/]+)\/dp\//);
+      if (titleMatch) {
+        productName = titleMatch[1].replace(/-/g, ' ').trim();
+      }
+      price = Math.floor(Math.random() * 100) + 19.99;
+      category = obtenerCategoriaAleatoria();
+    } else if (url.includes('elcorteingles')) {
+      storeName = 'El Corte Inglés';
+      const titleMatch = url.match(/\/p\/([^\/]+)/);
+      if (titleMatch) {
+        productName = titleMatch[1].replace(/-/g, ' ').trim();
+      }
+      price = Math.floor(Math.random() * 200) + 29.99;
+      category = obtenerCategoriaAleatoria();
+    } else if (url.includes('mediamarkt')) {
+      storeName = 'MediaMarkt';
+      const titleMatch = url.match(/\/product-detail\/([^\/]+)/);
+      if (titleMatch) {
+        productName = titleMatch[1].replace(/-/g, ' ').trim();
+      }
+      price = Math.floor(Math.random() * 300) + 49.99;
+      category = 'Electrónica';
+    } else if (url.includes('pccomponentes')) {
+      storeName = 'PcComponentes';
+      const titleMatch = url.match(/\/([^\/]+)_[0-9]+/);
+      if (titleMatch) {
+        productName = titleMatch[1].replace(/-/g, ' ').trim();
+      }
+      price = Math.floor(Math.random() * 500) + 79.99;
+      category = 'Electrónica';
+    } else {
+      // Para URLs desconocidas, crear información genérica
+      if (url.includes('producto') || url.includes('product') || url.includes('item')) {
+        const urlParts = url.split('/');
+        const lastPart = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+        productName = lastPart.replace(/-|_/g, ' ').replace(/\.\w+$/, '').trim();
+      }
+      
+      // Extraer el dominio para usar como nombre de tienda
+      const domainMatch = url.match(/\/\/(www\.)?([^\/]+)/);
+      if (domainMatch) {
+        const domain = domainMatch[2];
+        storeName = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
+      }
+      
+      price = Math.floor(Math.random() * 150) + 29.99;
+      category = obtenerCategoriaAleatoria();
+    }
+    
+    // Si no se pudo extraer un nombre de producto, usar uno genérico
+    if (productName === 'Producto desconocido') {
+      productName = generarNombreProductoAleatorio(category);
+    }
+    
+    // Generar datos de precio con descuento
+    const priceData = generatePriceData(price);
+    
+    return {
+      productName: capitalizeWords(productName),
+      currentPrice: priceData.currentPrice,
+      originalPrice: priceData.originalPrice,
+      discountPercentage: priceData.discountPercentage,
+      storeName,
+      category,
+      description: await fetchProductDescription(productName, category),
+      imageUrl: await fetchProductImage(productName, category),
+      availability: await checkProductAvailability(productName, url)
+    };
+  } catch (error) {
+    console.error('Error extracting product info:', error);
+    return {
+      productName: 'Error al extraer información',
+      currentPrice: 0,
+      originalPrice: 0,
+      discountPercentage: 0,
+      storeName: 'Desconocida',
+      category: 'Otros',
+      description: 'No se pudo extraer la información del producto.',
+      imageUrl: 'https://via.placeholder.com/400x400?text=Error',
+      availability: {
+        available: false,
+        status: 'Desconocido'
+      }
+    };
+  }
+};
+
+/**
+ * Función auxiliar para generar una categoría aleatoria
+ */
+function obtenerCategoriaAleatoria() {
+  const categorias = [
+    'Electrónica', 'Hogar', 'Moda', 'Videojuegos', 
+    'Deportes', 'Informática', 'Jardín', 'Alimentación'
+  ];
+  return categorias[Math.floor(Math.random() * categorias.length)];
+}
+
+/**
+ * Función auxiliar para generar un nombre de producto aleatorio
+ */
+function generarNombreProductoAleatorio(categoria) {
+  const productos = {
+    'Electrónica': [
+      'Auriculares Bluetooth', 'Smartwatch', 'Altavoz Portátil', 
+      'Tablet Android', 'Cámara Digital', 'Power Bank'
+    ],
+    'Hogar': [
+      'Cafetera Automática', 'Robot Aspirador', 'Lámpara LED', 
+      'Juego de Sábanas', 'Batería de Cocina', 'Almohada Viscoelástica'
+    ],
+    'Moda': [
+      'Zapatillas Deportivas', 'Chaqueta Impermeable', 'Gafas de Sol', 
+      'Reloj Analógico', 'Bolso de Cuero', 'Camiseta Algodón Orgánico'
+    ],
+    'Videojuegos': [
+      'Juego para PS5', 'Mando Xbox Series X', 'Auriculares Gaming', 
+      'Silla Gamer', 'Ratón Gaming', 'Videojuego Edición Coleccionista'
+    ],
+    'Deportes': [
+      'Bicicleta Montaña', 'Raqueta de Tenis', 'Balón de Fútbol', 
+      'Mochila Trekking', 'Botella Deportiva', 'Pulsera de Actividad'
+    ],
+    'default': [
+      'Producto Premium', 'Artículo Exclusivo', 'Oferta Especial', 
+      'Novedad Temporal', 'Pack Ahorro', 'Edición Limitada'
+    ]
+  };
+  
+  const lista = productos[categoria] || productos.default;
+  return lista[Math.floor(Math.random() * lista.length)];
+}
+
+/**
+ * Función auxiliar para capitalizar palabras
+ */
+function capitalizeWords(str) {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+export const fetchProductDescription = async (productName, category = '', tienda = '') => {
+  try {
+    // Devolver descripción genérica para evitar problemas de CORS
+    return `${productName} - Encuentra este increíble producto al mejor precio. ${
+      category ? `Categoría: ${category}.` : ''} ${
+      tienda ? `Disponible en ${tienda}.` : ''}
+      
+      Este producto de alta calidad está diseñado para satisfacer todas tus necesidades. 
+      Fabricado con materiales premium que garantizan una larga vida útil. 
+      Sus características innovadoras lo convierten en la mejor opción del mercado.`;
+  } catch (error) {
+    console.error('Error fetching product description:', error);
+    return `${productName} - Encuentra este increíble producto al mejor precio.`;
+  }
+};
+
+/**
+ * Obtiene especificaciones técnicas del producto
+ */
+export const fetchProductSpecs = async (productName, category = '') => {
+  try {
+    // Devolver especificaciones genéricas para evitar problemas CORS
+    return {
+      'Marca': 'Premium',
+      'Modelo': productName.slice(0, 10) + '-Pro',
+      'Dimensiones': '10 x 20 x 30 cm',
+      'Peso': '1.5 kg',
+      'Color': 'Negro/Plata',
+      'Material': 'Alta calidad',
+      'Garantía': '2 años'
+    };
+  } catch (error) {
+    console.error('Error fetching product specs:', error);
+    return {};
+  }
+};
+
+/**
+ * Método principal que combina todos los datos del producto
+ * Esta función es la que usa OfferCard.jsx
+ */
+export const fetchProductData = async (productName, category = '', tienda = '') => {
+  try {
+    // Ejecutar todas las peticiones en paralelo
+    const [images, description, specs] = await Promise.all([
+      fetchProductImages(productName, category, 4),
+      fetchProductDescription(productName, category, tienda),
+      fetchProductSpecs(productName, category)
+    ]);
+    
+    return {
+      images,
+      mainImage: images.length > 0 ? images[0] : null,
+      description,
+      specs
+    };
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+    return {
+      images: ['https://via.placeholder.com/400x400?text=No+Disponible'],
+      mainImage: 'https://via.placeholder.com/400x400?text=No+Disponible',
+      description: `${productName} - Información no disponible en este momento.`,
+      specs: {}
+    };
+  }
+};
+
+/**
+ * Obtiene información y logo de una tienda a partir de su nombre
+ */
+export const fetchStoreData = async (storeName) => {
+  try {
+    console.log('Obteniendo información de la tienda:', storeName);
+    
+    // Normalizar el nombre de la tienda para comparación
+    const normalizedName = storeName.trim();
+    
+    // Verificar si tenemos un logo predefinido para esta tienda
+    let logoUrl = storeLogos[normalizedName];
+    
+    // Si no encontramos match exacto, buscar coincidencias parciales
+    if (!logoUrl) {
+      for (const [key, value] of Object.entries(storeLogos)) {
+        if (normalizedName.toLowerCase().includes(key.toLowerCase()) || 
+            key.toLowerCase().includes(normalizedName.toLowerCase())) {
+          logoUrl = value;
+          break;
+        }
+      }
+    }
+    
+    // Generar descripción genérica de la tienda
+    let storeDescription = `${normalizedName} es una tienda online que ofrece diversos productos.`;
+    
+    // Personalizar descripciones para tiendas conocidas
+    if (normalizedName.toLowerCase().includes('amazon')) {
+      storeDescription = 'Amazon es una tienda online que ofrece millones de productos con envío rápido y precios competitivos.';
+    } else if (normalizedName.toLowerCase().includes('corte inglés')) {
+      storeDescription = 'El Corte Inglés es un gran almacén con amplia variedad de productos de calidad, desde moda hasta electrónica y alimentación.';
+    } else if (normalizedName.toLowerCase().includes('mediamarkt')) {
+      storeDescription = 'MediaMarkt es la cadena de tiendas especializada en electrónica, informática y electrodomésticos con precios competitivos.';
+    } else if (normalizedName.toLowerCase().includes('pccomponentes')) {
+      storeDescription = 'PcComponentes es una tienda especializada en informática, componentes y tecnología con precios competitivos.';
+    } else if (normalizedName.toLowerCase().includes('zara')) {
+      storeDescription = 'Zara es una cadena de moda con las últimas tendencias en ropa, calzado y accesorios para mujer, hombre y niños.';
+    } else if (normalizedName.toLowerCase().includes('game')) {
+      storeDescription = 'GAME es la tienda especializada en videojuegos y consolas con las últimas novedades del mercado gaming.';
+    }
+    
+    return {
+      logo: logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(normalizedName)}&background=random&color=fff&size=200&bold=true&format=svg`,
+      description: storeDescription,
+      website: '#', // En una implementación real, aquí iría la URL de la tienda
+      rating: 4.5,
+      reviewCount: 120
+    };
+  } catch (error) {
+    console.error('Error fetching store data:', error);
+    
+    // En caso de error, devolver un objeto con valores predeterminados
+    return {
+      logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(storeName)}&background=random&color=fff&size=200&bold=true&format=svg`,
+      description: `${storeName} es una tienda online que ofrece diversos productos.`,
+      website: '#'
+    };
+  }
+};
+
+/**
+ * Obtiene la información de un producto a partir de su URL
+ */
+export const fetchProductInfo = async (url) => {
+  try {
+    console.log('Obteniendo información del producto:', url);
+    
+    // Determinar qué tienda es en base a la URL
+    let store = 'Desconocido';
+    let productName = 'Producto de ejemplo';
+    
+    // Intentar extraer información de la URL
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split('/');
+    const lastPart = pathParts[pathParts.length - 1];
+    
+    if (lastPart && lastPart.length > 3) {
+      productName = lastPart
+        .replace(/-/g, ' ')
+        .replace(/\d+/g, '')
+        .trim();
+      
+      // Capitalizar primera letra de cada palabra
+      productName = productName
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    if (url.includes('amazon')) {
+      store = 'Amazon';
+    } else if (url.includes('elcorteingles')) {
+      store = 'El Corte Inglés';
+    } else if (url.includes('mediamarkt')) {
+      store = 'MediaMarkt';
+    } else if (url.includes('pccomponentes')) {
+      store = 'PcComponentes';
+    } else if (url.includes('zara')) {
+      store = 'Zara';
+    }
+    
+    // Generar precios simulados
+    const priceData = await extractProductPrice(url, productName);
+    const productImage = await findProductImage(productName);
+    const productDescription = await extractProductDescription(url, productName);
+    const productSpecs = await findProductSpecs(productName);
+    
+    return {
+      title: productName,
+      currentPrice: priceData.current,
+      originalPrice: priceData.original,
+      description: productDescription,
+      images: [
+        productImage || 'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070',
+        'https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=2187'
+      ],
+      specifications: productSpecs,
+      store: store,
+      storeLogoUrl: storeLogos[store] || null,
+      availability: 'En stock',
+      rating: 4.5,
+      reviewCount: 120
+    };
+  } catch (error) {
+    console.error('Error fetchProductInfo:', error);
+    return {
+      title: 'Producto de ejemplo',
+      currentPrice: 99.99,
+      originalPrice: 129.99,
+      description: 'Descripción detallada del producto que incluye sus características principales.',
+      images: [
+        'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070',
+        'https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=2187'
+      ],
+      specifications: {
+        'Marca': 'Ejemplo',
+        'Modelo': 'XYZ-123',
+        'Dimensiones': '10 x 20 x 30 cm',
+        'Peso': '1.5 kg'
+      },
+      store: 'Desconocido',
+      storeLogoUrl: null,
+      availability: 'En stock',
+      rating: 4.5,
+      reviewCount: 120
+    };
+  }
+};
+
+/**
+ * Obtiene el precio de un producto a partir de su URL
+ */
+export const fetchProductPrice = async (url) => {
+  try {
+    console.log('Obteniendo precio del producto:', url);
+    
+    // Utilizamos nuestra función interna
+    const priceData = await extractProductPrice(url);
+    const discountPercentage = priceData.original ? 
+      Math.round(((priceData.original - priceData.current) / priceData.original) * 100) : 0;
+    
+    return {
+      currentPrice: priceData.current,
+      originalPrice: priceData.original,
+      discountPercentage,
+      currency: '€',
+      lastUpdated: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error fetchProductPrice:', error);
+    // Generar precios aleatorios para propósitos de demo
+    const currentPrice = Math.floor(Math.random() * 100) + 50;
+    const originalPrice = currentPrice + Math.floor(Math.random() * 50);
+    const discountPercentage = Math.floor(((originalPrice - currentPrice) / originalPrice) * 100);
+    
+    return {
+      currentPrice,
+      originalPrice,
+      discountPercentage,
+      currency: '€',
+      lastUpdated: new Date().toISOString()
+    };
+  }
+};
+
+/**
+ * Obtiene ofertas destacadas para varias tiendas
+ */
+export const fetchFeaturedDeals = async (limit = 5) => {
+  try {
+    console.log('Obteniendo ofertas destacadas');
+    
+    const stores = ['Amazon', 'MediaMarkt', 'El Corte Inglés', 'PcComponentes', 'Zara'];
+    const productTypes = [
+      'Smartphone', 'Portátil', 'TV', 'Tablets', 'Auriculares', 
+      'Zapatillas', 'Camiseta', 'Reloj', 'Aspiradora', 'Cafetera'
+    ];
+    const deals = {};
+    
+    for (const store of stores) {
+      deals[store] = await Promise.all(
+        Array(limit).fill(0).map(async (_, i) => {
+          const productName = `${productTypes[Math.floor(Math.random() * productTypes.length)]} ${store} ${i+1}`;
+          const url = `https://example.com/${store.toLowerCase()}/${productName.toLowerCase().replace(/\s+/g, '-')}`;
+          
+          // Generar datos aleatorios pero realistas
+          const priceData = await extractProductPrice(url, productName);
+          const imageUrl = await findProductImage(productName);
+          
+          return {
+            id: `${store.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+            title: productName,
+            currentPrice: priceData.current,
+            originalPrice: priceData.original,
+            discountPercentage: priceData.original ? 
+              Math.round(((priceData.original - priceData.current) / priceData.original) * 100) : 0,
+            imageUrl: imageUrl || `https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070`,
+            url: url,
+            store: store
+          };
+        })
+      );
+    }
+    
+    return deals;
+  } catch (error) {
+    console.error('Error fetchFeaturedDeals:', error);
+    
+    // Datos por defecto en caso de error
+    const deals = {};
+    const stores = ['Amazon', 'MediaMarkt', 'El Corte Inglés', 'PcComponentes', 'Zara'];
+    
+    for (const store of stores) {
+      deals[store] = Array(limit).fill(0).map((_, i) => ({
+        id: `${store.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+        title: `Producto ${i+1} de ${store}`,
+        currentPrice: Math.floor(Math.random() * 100) + 50,
+        originalPrice: Math.floor(Math.random() * 100) + 100,
+        discountPercentage: Math.floor(Math.random() * 40) + 10,
+        imageUrl: `https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070`,
+        url: '#',
+        store: store
+      }));
+    }
+    
+    return deals;
+  }
+};
+
+/**
+ * Métodos compatibles con la API original (para compatibilidad con código existente)
+ */
+
+/**
+ * Obtiene imágenes reales de productos (VERSIÓN SIMULADA)
+ */
+export const fetchProductImages = async (productName, category = '', count = 4) => {
+  try {
+    // Obtener una imagen principal mediante nuestro método de búsqueda
+    const mainImage = await findProductImage(productName);
+    
+    // Generar imágenes adicionales para mantener la consistencia con la API original
+    return [
+      mainImage || 'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070',
+      'https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=2187',
+      'https://images.unsplash.com/photo-1511994298241-608e28f14fde?q=80&w=2070',
+      'https://images.unsplash.com/photo-1669123547602-ca1f974ac177?q=80&w=1974'
+    ].slice(0, count);
+  } catch (error) {
+    console.error('Error fetchProductImages:', error);
+    return [
+      'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070'
+    ].slice(0, count);
+  }
+};
+
+/**
+ * Obtiene una descripción enriquecida del producto (VERSIÓN SIMULADA)
+ */
+export const fetchProductDescription = async (productName, category = '', tienda = '') => {
+  try {
+    // Utilizamos nuestra función interna
+    return await extractProductDescription(`https://example.com/${encodeURIComponent(productName)}`, productName);
+  } catch (error) {
+    console.error('Error fetchProductDescription:', error);
+    return `${productName} - Encuentra este increíble producto al mejor precio.`;
+  }
+};
+
+/**
+ * Obtiene especificaciones técnicas del producto (VERSIÓN SIMULADA)
+ */
+export const fetchProductSpecs = async (productName, category = '') => {
+  try {
+    // Utilizamos nuestra función interna
+    return await findProductSpecs(productName);
+  } catch (error) {
+    console.error('Error fetchProductSpecs:', error);
+    return {
+      'Marca': 'Premium',
+      'Modelo': productName.slice(0, 10) + '-Pro',
+      'Dimensiones': '10 x 20 x 30 cm',
+      'Peso': '1.5 kg',
+      'Color': 'Negro/Plata',
+      'Material': 'Alta calidad',
+      'Garantía': '2 años'
+    };
+  }
+};
+
+/**
+ * Método principal que combina todos los datos del producto (VERSIÓN SIMULADA)
+ */
+export const fetchProductData = async (productName, category = '', tienda = '') => {
+  try {
+    // Ejecutar todas las peticiones en paralelo
+    const [images, description, specs] = await Promise.all([
+      fetchProductImages(productName, category, 4),
+      fetchProductDescription(productName, category, tienda),
+      fetchProductSpecs(productName, category)
+    ]);
+    
+    return {
+      images,
+      mainImage: images.length > 0 ? images[0] : null,
+      description,
+      specs
+    };
+  } catch (error) {
+    console.error('Error fetchProductData:', error);
+    return {
+      images: ['https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070'],
+      mainImage: 'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070',
+      description: `${productName} - Información no disponible en este momento.`,
+      specs: {}
+    };
+  }
+};
+
+/**
+ * Obtiene información y logo de una tienda a partir de su nombre (VERSIÓN SIMULADA)
+ */
+export const fetchStoreData = async (storeName) => {
+  try {
+    console.log('Obteniendo información de la tienda:', storeName);
+    
+    // Normalizar el nombre de la tienda para comparación
+    const normalizedName = storeName.trim();
+    
+    // Verificar si tenemos un logo predefinido para esta tienda
+    let logoUrl = storeLogos[normalizedName];
+    
+    // Si no encontramos match exacto, buscar coincidencias parciales
+    if (!logoUrl) {
+      for (const [key, value] of Object.entries(storeLogos)) {
+        if (normalizedName.toLowerCase().includes(key.toLowerCase()) || 
+            key.toLowerCase().includes(normalizedName.toLowerCase())) {
+          logoUrl = value;
+          break;
+        }
+      }
+    }
+    
+    // Generar descripción genérica de la tienda
+    let storeDescription = `${normalizedName} es una tienda online que ofrece diversos productos.`;
+    
+    // Personalizar descripciones para tiendas conocidas
+    if (normalizedName.toLowerCase().includes('amazon')) {
+      storeDescription = 'Amazon es una tienda online que ofrece millones de productos con envío rápido y precios competitivos.';
+    } else if (normalizedName.toLowerCase().includes('corte inglés')) {
+      storeDescription = 'El Corte Inglés es un gran almacén con amplia variedad de productos de calidad, desde moda hasta electrónica y alimentación.';
+    } else if (normalizedName.toLowerCase().includes('mediamarkt')) {
+      storeDescription = 'MediaMarkt es la cadena de tiendas especializada en electrónica, informática y electrodomésticos con precios competitivos.';
+    } else if (normalizedName.toLowerCase().includes('pccomponentes')) {
+      storeDescription = 'PcComponentes es una tienda especializada en informática, componentes y tecnología con precios competitivos.';
+    } else if (normalizedName.toLowerCase().includes('zara')) {
+      storeDescription = 'Zara es una cadena de moda con las últimas tendencias en ropa, calzado y accesorios para mujer, hombre y niños.';
+    } else if (normalizedName.toLowerCase().includes('game')) {
+      storeDescription = 'GAME es la tienda especializada en videojuegos y consolas con las últimas novedades del mercado gaming.';
+    }
+    
+    return {
+      logo: logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(normalizedName)}&background=random&color=fff&size=200&bold=true&format=svg`,
+      description: storeDescription,
+      website: '#', // En una implementación real, aquí iría la URL de la tienda
+      rating: 4.5,
+      reviewCount: 120
+    };
+  } catch (error) {
+    console.error('Error fetching store data:', error);
+    
+    // En caso de error, devolver un objeto con valores predeterminados
+    return {
+      logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(storeName)}&background=random&color=fff&size=200&bold=true&format=svg`,
+      description: `${storeName} es una tienda online que ofrece diversos productos.`,
+      website: '#'
+    };
+  }
+};
+
+/**
+ * Obtiene la información de un producto a partir de su URL (VERSIÓN SIMULADA)
+ */
+export const fetchProductInfo = async (url) => {
+  try {
+    console.log('Obteniendo información del producto:', url);
+    
+    // Determinar qué tienda es en base a la URL
+    let store = 'Desconocido';
+    let productName = 'Producto de ejemplo';
+    
+    // Intentar extraer información de la URL
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split('/');
+    const lastPart = pathParts[pathParts.length - 1];
+    
+    if (lastPart && lastPart.length > 3) {
+      productName = lastPart
+        .replace(/-/g, ' ')
+        .replace(/\d+/g, '')
+        .trim();
+      
+      // Capitalizar primera letra de cada palabra
+      productName = productName
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    if (url.includes('amazon')) {
+      store = 'Amazon';
+    } else if (url.includes('elcorteingles')) {
+      store = 'El Corte Inglés';
+    } else if (url.includes('mediamarkt')) {
+      store = 'MediaMarkt';
+    } else if (url.includes('pccomponentes')) {
+      store = 'PcComponentes';
+    } else if (url.includes('zara')) {
+      store = 'Zara';
+    }
+    
+    // Generar precios simulados
+    const priceData = await extractProductPrice(url, productName);
+    const productImage = await findProductImage(productName);
+    const productDescription = await extractProductDescription(url, productName);
+    const productSpecs = await findProductSpecs(productName);
+    
+    return {
+      title: productName,
+      currentPrice: priceData.current,
+      originalPrice: priceData.original,
+      description: productDescription,
+      images: [
+        productImage || 'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070',
+        'https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=2187'
+      ],
+      specifications: productSpecs,
+      store: store,
+      storeLogoUrl: storeLogos[store] || null,
+      availability: 'En stock',
+      rating: 4.5,
+      reviewCount: 120
+    };
+  } catch (error) {
+    console.error('Error fetchProductInfo:', error);
+    return {
+      title: 'Producto de ejemplo',
+      currentPrice: 99.99,
+      originalPrice: 129.99,
+      description: 'Descripción detallada del producto que incluye sus características principales.',
+      images: [
+        'https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070',
+        'https://images.unsplash.com/photo-1605348532760-6753d2c43329?q=80&w=2187'
+      ],
+      specifications: {
+        'Marca': 'Ejemplo',
+        'Modelo': 'XYZ-123',
+        'Dimensiones': '10 x 20 x 30 cm',
+        'Peso': '1.5 kg'
+      },
+      store: 'Desconocido',
+      storeLogoUrl: null,
+      availability: 'En stock',
+      rating: 4.5,
+      reviewCount: 120
+    };
+  }
+};
+
+/**
+ * Obtiene el precio de un producto a partir de su URL (VERSIÓN SIMULADA)
+ */
+export const fetchProductPrice = async (url) => {
+  try {
+    console.log('Obteniendo precio del producto:', url);
+    
+    // Utilizamos nuestra función interna
+    const priceData = await extractProductPrice(url);
+    const discountPercentage = priceData.original ? 
+      Math.round(((priceData.original - priceData.current) / priceData.original) * 100) : 0;
+    
+    return {
+      currentPrice: priceData.current,
+      originalPrice: priceData.original,
+      discountPercentage,
+      currency: '€',
+      lastUpdated: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error fetchProductPrice:', error);
+    // Generar precios aleatorios para propósitos de demo
+    const currentPrice = Math.floor(Math.random() * 100) + 50;
+    const originalPrice = currentPrice + Math.floor(Math.random() * 50);
+    const discountPercentage = Math.floor(((originalPrice - currentPrice) / originalPrice) * 100);
+    
+    return {
+      currentPrice,
+      originalPrice,
+      discountPercentage,
+      currency: '€',
+      lastUpdated: new Date().toISOString()
+    };
+  }
+};
+
+/**
+ * Obtiene ofertas destacadas para varias tiendas (VERSIÓN SIMULADA)
+ */
+export const fetchFeaturedDeals = async (limit = 5) => {
+  try {
+    console.log('Obteniendo ofertas destacadas');
+    
+    const stores = ['Amazon', 'MediaMarkt', 'El Corte Inglés', 'PcComponentes', 'Zara'];
+    const productTypes = [
+      'Smartphone', 'Portátil', 'TV', 'Tablets', 'Auriculares', 
+      'Zapatillas', 'Camiseta', 'Reloj', 'Aspiradora', 'Cafetera'
+    ];
+    const deals = {};
+    
+    for (const store of stores) {
+      deals[store] = await Promise.all(
+        Array(limit).fill(0).map(async (_, i) => {
+          const productName = `${productTypes[Math.floor(Math.random() * productTypes.length)]} ${store} ${i+1}`;
+          const url = `https://example.com/${store.toLowerCase()}/${productName.toLowerCase().replace(/\s+/g, '-')}`;
+          
+          // Generar datos aleatorios pero realistas
+          const priceData = await extractProductPrice(url, productName);
+          const imageUrl = await findProductImage(productName);
+          
+          return {
+            id: `${store.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+            title: productName,
+            currentPrice: priceData.current,
+            originalPrice: priceData.original,
+            discountPercentage: priceData.original ? 
+              Math.round(((priceData.original - priceData.current) / priceData.original) * 100) : 0,
+            imageUrl: imageUrl || `https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070`,
+            url: url,
+            store: store
+          };
+        })
+      );
+    }
+    
+    return deals;
+  } catch (error) {
+    console.error('Error fetchFeaturedDeals:', error);
+    
+    // Datos por defecto en caso de error
+    const deals = {};
+    const stores = ['Amazon', 'MediaMarkt', 'El Corte Inglés', 'PcComponentes', 'Zara'];
+    
+    for (const store of stores) {
+      deals[store] = Array(limit).fill(0).map((_, i) => ({
+        id: `${store.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+        title: `Producto ${i+1} de ${store}`,
+        currentPrice: Math.floor(Math.random() * 100) + 50,
+        originalPrice: Math.floor(Math.random() * 100) + 100,
+        discountPercentage: Math.floor(Math.random() * 40) + 10,
+        imageUrl: `https://images.unsplash.com/photo-1561715276-a2d087060f1d?q=80&w=2070`,
+        url: '#',
+        store: store
+      }));
+    }
+    
+    return deals;
+  }
+};
+
+// Export por defecto que incluye todas las funciones
+// Esto permite importar tanto con import productScraper from '...' como con import { fetchProductData } from '...'
+export default {
+  findProductImage,
+  findProductSpecs,
+  extractProductDescription,
+  checkOfferAvailability,
+  extractProductPrice,
+  generateCompleteOfferData,
+  fetchProductData,
+  fetchProductImages,
+  fetchProductDescription,
+  fetchProductSpecs,
+  fetchStoreData,
+  fetchProductInfo,
+  fetchProductPrice,
+  fetchFeaturedDeals
+};

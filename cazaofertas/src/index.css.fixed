@@ -1,0 +1,39 @@
+/* filepath: c:\Users\HollyRedfield\Desktop\tfg\cazaofertas\src\index.css.fixed */
+@import './styles/modern.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-white;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-xl transition-all duration-300 font-medium;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .section-title {
+    @apply text-2xl sm:text-3xl font-bold mb-6 text-gray-900 dark:text-white;
+  }
+  
+  .card {
+    @apply rounded-large bg-white dark:bg-bg-cardDark shadow-soft hover:shadow-medium transition-all duration-300;
+  }
+}

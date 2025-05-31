@@ -1,0 +1,49 @@
+{
+  "name": "cazaofertas",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --emptyOutDir",
+    "build:android": "vite build --outDir dist-temp --emptyOutDir && npx cap sync android",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/core": "^7.2.0",
+    "@capacitor/splash-screen": "^7.0.1",
+    "@capacitor/status-bar": "^7.0.1",
+    "@supabase/supabase-js": "^2.49.4",
+    "axios": "^1.9.0",
+    "framer-motion": "^12.11.4",
+    "puppeteer": "^24.9.0",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.10.10",
+    "react-datepicker": "^8.3.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0",
+    "react-quill": "^2.0.0",
+    "react-router-dom": "^7.6.0",
+    "react-toastify": "^11.0.5",
+    "swiper": "^11.2.6",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "autoprefixer": "^10.4.21",
+    "empty-module": "^0.0.2",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.5"
+  }
+}

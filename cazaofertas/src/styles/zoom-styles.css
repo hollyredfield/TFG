@@ -1,0 +1,73 @@
+/* 
+ * zoom-styles.css
+ * Estilos adicionales para mejorar la experiencia de zoom en dispositivos móviles
+ * Especialmente para la sección de perfil y botón de cerrar sesión
+ */
+
+/* Aplicar estos estilos mediante un enlace en el head o importando en src/index.css */
+
+/* Mejoras generales para interacción táctil */
+button, a, input, select, .clickable {
+  /* Aumentar el área táctil de los elementos interactivos */
+  min-height: 44px;
+  min-width: 44px;
+  /* Espacio adecuado para evitar tocar elementos adyacentes */
+  margin: 0.25rem;
+  /* Borde visible al tocar */
+  touch-action: manipulation;
+}
+
+/* Mejoras específicas para la sección de perfil */
+.profile-section, 
+.account-section, 
+.user-menu,
+.user-profile,
+.logged-in-section {
+  /* Asegurar que estos elementos sean visibles y accesibles */
+  overflow: visible !important;
+  max-height: none !important;
+  /* Permitir que se pueda hacer scroll */
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Mejorar el botón de logout */
+.logout-button, 
+button[aria-label="Cerrar sesión"],
+button[aria-label="Logout"] {
+  /* Hacer el botón más grande */
+  padding: 12px !important;
+  /* Estilo más visible */
+  border: 2px solid rgba(239, 68, 68, 0.5) !important;
+  /* Añadir espacio alrededor */
+  margin: 10px 0 !important;
+  /* Mejorar la visibilidad */
+  font-weight: bold !important;
+}
+
+/* Mejora para áreas de difícil acceso */
+.hard-to-reach-area {
+  /* Agrandar el área con padding */
+  padding: 20px !important;
+  /* Permitir scroll con gestos táctiles */
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+  /* Ayuda visual */
+  border: 1px dashed #ccc;
+}
+
+/* Evitar elementos fijos que pueden ocultar contenido al hacer zoom */
+@media (max-width: 768px) {
+  .fixed-header,
+  .fixed-footer,
+  .sticky-nav {
+    position: relative !important;
+  }
+}
+
+/* Mejora del feedback visual al hacer tap */
+.touchable:active,
+button:active,
+a:active {
+  opacity: 0.7;
+  transform: scale(0.98);
+}

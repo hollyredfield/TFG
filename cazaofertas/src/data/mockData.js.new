@@ -1,0 +1,702 @@
+// mockData.js - Datos simulados para toda la aplicación
+import { v4 as uuidv4 } from 'uuid';
+
+// Utilidades
+export const generateId = () => uuidv4();
+export const simulateDelay = async (min = 300, max = 800) => {
+  await new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
+};
+
+// Usuarios simulados
+export const users = [
+  {
+    id: 'user-1',
+    email: 'usuario1@ejemplo.com',
+    nombre_usuario: 'María García',
+    avatar_url: 'https://i.pravatar.cc/300?img=1',
+    bio: 'Apasionada cazadora de ofertas y amante de la tecnología. Siempre buscando las mejores oportunidades para ahorrar.',
+    ubicacion: 'Madrid, España',
+    intereses: ['tecnología', 'viajes', 'moda', 'fotografía'],
+    sitio_web: 'https://mariagarcia.blog',
+    redes_sociales: {
+      twitter: '@mariagarcia',
+      telegram: '@maria_ofertas'
+    },
+    preferencias: {
+      notificaciones_email: true,
+      notificaciones_push: true,
+      perfil_publico: true
+    },
+    estadisticas: {
+      ofertas_publicadas: 25,
+      ofertas_guardadas: 48,
+      ofertas_votadas: 156,
+      contribuciones_totales: 229,
+      ultima_oferta: '2024-05-10T14:30:00Z',
+      mejor_oferta: {
+        titulo: '70% descuento en MacBook Pro M2',
+        votos: 342
+      }
+    },
+    creado_en: '2024-01-15T10:00:00Z',
+    role: 'user',
+    verificado: true,
+    notificaciones: [
+      {
+        id: 'notif-1',
+        titulo: '¡Nueva oferta en tu categoría favorita!',
+        mensaje: 'Hay un nuevo descuento en Electrónica que te puede interesar',
+        creado_en: '2024-05-11T15:30:00Z',
+        leida: false
+      }
+    ],
+    favoritos: ['offer-1', 'offer-3']
+  },
+  {
+    id: 'user-2',
+    email: 'admin@cazaofertas.com',
+    nombre_usuario: 'Carlos Rodríguez',
+    avatar_url: 'https://i.pravatar.cc/300?img=2',
+    bio: 'Administrador y desarrollador de Cazaofertas. Experto en encontrar las mejores ofertas en tecnología.',
+    ubicacion: 'Barcelona, España',
+    intereses: ['programación', 'tecnología', 'gaming', 'gadgets'],
+    sitio_web: 'https://cazaofertas.com/blog',
+    redes_sociales: {
+      twitter: '@carlos_admin',
+      telegram: '@carlos_ofertas'
+    },
+    preferencias: {
+      notificaciones_email: true,
+      notificaciones_push: true,
+      perfil_publico: true
+    },
+    estadisticas: {
+      ofertas_publicadas: 187,
+      ofertas_guardadas: 92,
+      ofertas_votadas: 534,
+      contribuciones_totales: 813,
+      ultima_oferta: '2024-05-11T09:15:00Z',
+      mejor_oferta: {
+        titulo: '90% descuento en cursos de programación',
+        votos: 892
+      }
+    },
+    creado_en: '2024-01-10T08:30:00Z',
+    role: 'admin',
+    verificado: true,
+    notificaciones: [],
+    favoritos: []
+  },
+  {
+    id: 'user-3',
+    email: 'laura@ejemplo.com',
+    nombre_usuario: 'Laura Martínez',
+    avatar_url: 'https://i.pravatar.cc/300?img=3',
+    bio: 'Fashion blogger y amante de las ofertas en moda. Comparto los mejores descuentos en ropa y accesorios.',
+    ubicacion: 'Valencia, España',
+    intereses: ['moda', 'belleza', 'lifestyle', 'viajes'],
+    sitio_web: 'https://lauramartinez.fashion',
+    redes_sociales: {
+      twitter: '@laura_fashion',
+      telegram: '@laura_ofertas'
+    },
+    preferencias: {
+      notificaciones_email: true,
+      notificaciones_push: true,
+      perfil_publico: true
+    },
+    estadisticas: {
+      ofertas_publicadas: 43,
+      ofertas_guardadas: 128,
+      ofertas_votadas: 276,
+      contribuciones_totales: 447,
+      ultima_oferta: '2024-05-09T16:45:00Z',
+      mejor_oferta: {
+        titulo: '80% descuento en Zara',
+        votos: 567
+      }
+    },
+    creado_en: '2024-02-20T14:15:00Z',
+    role: 'user',
+    verificado: true,
+    notificaciones: [],
+    favoritos: ['offer-2']
+  }
+];
+
+// Categorías simuladas con imágenes reales y descripciones detalladas
+export const categorias = [
+  {
+    id: 1,
+    nombre: 'Electrónica',
+    slug: 'electronica',
+    imagen: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=2070',
+    descripcion: 'Ofertas en smartphones, portátiles, tablets y todo tipo de gadgets'
+  },
+  {
+    id: 2,
+    nombre: 'Moda',
+    slug: 'moda',
+    imagen: 'https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071',
+    descripcion: 'Las últimas tendencias en ropa, calzado y accesorios con los mejores descuentos'
+  },
+  {
+    id: 3,
+    nombre: 'Hogar',
+    slug: 'hogar',
+    imagen: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069',
+    descripcion: 'Todo para tu casa: muebles, decoración, electrodomésticos y más'
+  },
+  {
+    id: 4,
+    nombre: 'Videojuegos',
+    slug: 'videojuegos',
+    imagen: 'https://images.unsplash.com/photo-1580327344181-c1163234e5a0?q=80&w=2067',
+    descripcion: 'Encuentra las mejores ofertas en juegos, consolas y accesorios gaming'
+  },
+  {
+    id: 5,
+    nombre: 'Deportes',
+    slug: 'deportes',
+    imagen: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=2070',
+    descripcion: 'Equipamiento deportivo, ropa técnica y accesorios para todo tipo de deportes'
+  },
+  {
+    id: 6,
+    nombre: 'Viajes',
+    slug: 'viajes',
+    imagen: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=2070',
+    descripcion: 'Chollos en vuelos, hoteles y paquetes vacacionales'
+  }
+];
+
+// Tiendas simuladas
+export const tiendas = [
+  {
+    id: 1,
+    nombre: "Amazon España",
+    slug: "amazon-espana",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png",
+    descripcion: "La mayor tienda online del mundo",
+    sitio_web: "https://www.amazon.es",
+    ofertas_activas: 156,
+    categorias: ["Electrónica", "Hogar", "Moda"],
+    valoracion: 4.8,
+    verificada: true
+  },
+  {
+    id: 2,
+    nombre: "MediaMarkt",
+    slug: "mediamarkt",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/MediaMarkt_logo.svg/2560px-MediaMarkt_logo.svg.png",
+    descripcion: "Especialistas en electrónica y electrodomésticos",
+    sitio_web: "https://www.mediamarkt.es",
+    ofertas_activas: 89,
+    categorias: ["Electrónica", "Informática"],
+    valoracion: 4.5,
+    verificada: true
+  },
+  {
+    id: 3,
+    nombre: "El Corte Inglés",
+    slug: "el-corte-ingles",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/El_Corte_Ingl%C3%A9s_logo.svg/2560px-El_Corte_Ingl%C3%A9s_logo.svg.png",
+    descripcion: "Los mejores productos en moda y electrónica",
+    sitio_web: "https://www.elcorteingles.es",
+    ofertas_activas: 134,
+    categorias: ["Moda", "Electrónica", "Hogar"],
+    valoracion: 4.6,
+    verificada: true
+  }
+];
+
+// Ofertas simuladas con datos realistas
+export const ofertas = [
+  // Electrónica
+  {
+    id: 'offer-e1',
+    titulo: 'iPhone 15 Pro Max 256GB - Titanio Natural',
+    descripcion: 'El iPhone más potente con chip A17 Pro y cámara de 48MP.',
+    precio_actual: 1259.99,
+    precio_original: 1469.00,
+    porcentaje_descuento: 14,
+    url_imagen: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=5120&hei=2880&fmt=p-jpg',
+    tienda: 'Amazon',
+    id_tienda: 1,
+    id_categoria: 1,
+    votos_positivos: 342,
+    creado_por: 'user-1',
+    creado_en: '2024-05-14T10:00:00Z',
+    url: 'https://www.amazon.es/dp/B0CHX2F5QT',
+    slug: 'iphone-15-pro-max-titanio',
+    comentarios: []
+  },
+  {
+    id: 'offer-e2',
+    titulo: 'MacBook Air M3 13.6" 8GB 256GB',
+    descripcion: 'El portátil más fino y ligero con el chip M3.',
+    precio_actual: 1119.00,
+    precio_original: 1299.00,
+    porcentaje_descuento: 14,
+    url_imagen: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/macbook-air-midnight-config-20220606?wid=820&hei=498&fmt=jpeg',
+    tienda: 'MediaMarkt',
+    id_tienda: 2,
+    id_categoria: 1,
+    votos_positivos: 287,
+    creado_por: 'user-2',
+    creado_en: '2024-05-14T09:30:00Z',
+    url: 'https://www.mediamarkt.es/macbook-air-m3',
+    slug: 'macbook-air-m3',
+    comentarios: []
+  },  
+  {
+    id: 'offer-e3',
+    titulo: 'Samsung S24 Ultra 512GB - Titanium Gray',
+    descripcion: 'Galaxy AI con cámara de 200MP y zoom 100x.',
+    precio_actual: 1399.00,
+    precio_original: 1589.00,
+    porcentaje_descuento: 12,
+    url_imagen: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?q=80&w=1000',
+    tienda: 'El Corte Inglés',
+    id_tienda: 3,
+    id_categoria: 1,
+    votos_positivos: 256,
+    creado_por: 'user-1',
+    creado_en: '2024-05-13T15:20:00Z',
+    url: 'https://www.elcorteingles.es/samsung-s24-ultra',
+    slug: 'samsung-s24-ultra',
+    comentarios: []
+  },
+
+  // Moda  
+  {
+    id: 'offer-m1',
+    titulo: 'Nike Air Jordan 1 Retro High OG',
+    descripcion: 'Zapatillas exclusivas en colaboración con Travis Scott.',
+    precio_actual: 149.99,
+    precio_original: 199.99,
+    porcentaje_descuento: 25,
+    url_imagen: 'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?q=80&w=2021',
+    tienda: 'Nike',
+    id_tienda: 4,
+    id_categoria: 2,
+    votos_positivos: 423,
+    creado_por: 'user-3',
+    creado_en: '2024-05-14T08:00:00Z',
+    url: 'https://www.nike.com/es/air-jordan-1',
+    slug: 'nike-air-jordan-1',
+    comentarios: []
+  },
+  {
+    id: 'offer-m2',
+    titulo: 'Abrigo de Lana Oversize Zara',
+    descripcion: 'Abrigo largo de lana con corte oversize.',
+    precio_actual: 69.99,
+    precio_original: 129.99,
+    porcentaje_descuento: 46,
+    url_imagen: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?q=80&w=1000',
+    tienda: 'Zara',
+    id_tienda: 5,
+    id_categoria: 2,
+    votos_positivos: 167,
+    creado_por: 'user-3',
+    creado_en: '2024-05-14T09:15:00Z',
+    url: 'https://www.zara.com/es/es/abrigo-lana-oversize-p02219747.html',
+    slug: 'abrigo-lana-oversize-zara',
+    comentarios: []
+  },
+
+  // Hogar  
+  {
+    id: 'offer-h1',
+    titulo: 'Robot Aspirador Roomba Combo j9+',
+    descripcion: 'Robot aspirador y fregona con vaciado automático.',
+    precio_actual: 799.00,
+    precio_original: 1199.00,
+    porcentaje_descuento: 33,
+    url_imagen: 'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=1000',
+    tienda: 'Amazon',
+    id_tienda: 1,
+    id_categoria: 3,
+    votos_positivos: 245,
+    creado_por: 'user-2',
+    creado_en: '2024-05-14T07:30:00Z',
+    url: 'https://www.amazon.es/roomba-j9-plus',
+    slug: 'roomba-combo-j9-plus',
+    comentarios: []
+  },
+  {
+    id: 'offer-h2',
+    titulo: 'Thermomix TM6 + Cookidoo',
+    descripcion: 'Robot de cocina con pantalla táctil y recetas.',
+    precio_actual: 1099.00,
+    precio_original: 1359.00,
+    porcentaje_descuento: 19,
+    url_imagen: 'https://images.unsplash.com/photo-1585237017125-24baf8d7406f?q=80&w=1000',
+    tienda: 'El Corte Inglés',
+    id_tienda: 3,
+    id_categoria: 3,
+    votos_positivos: 312,
+    creado_por: 'user-1',
+    creado_en: '2024-05-14T08:45:00Z',
+    url: 'https://www.elcorteingles.es/thermomix',
+    slug: 'thermomix-tm6',
+    comentarios: []
+  },
+
+  // Videojuegos  
+  {
+    id: 'offer-v1',
+    titulo: 'PS5 Slim + Spider-Man 2',
+    descripcion: 'La nueva PS5 más compacta con Spider-Man 2.',
+    precio_actual: 499.99,
+    precio_original: 609.99,
+    porcentaje_descuento: 18,
+    url_imagen: 'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?q=80&w=1000',
+    tienda: 'MediaMarkt',
+    id_tienda: 2,
+    id_categoria: 4,
+    votos_positivos: 534,
+    creado_por: 'user-2',
+    creado_en: '2024-05-14T10:15:00Z',
+    url: 'https://www.mediamarkt.es/ps5-slim-spiderman2',
+    slug: 'ps5-slim-spiderman2',
+    comentarios: []
+  },
+  {
+    id: 'offer-v2',
+    titulo: 'Nintendo Switch OLED + Mario Kart 8',
+    descripcion: 'Switch OLED con Mario Kart 8 y 3 meses Online.',
+    precio_actual: 329.99,
+    precio_original: 399.99,
+    porcentaje_descuento: 17,
+    url_imagen: 'https://images.unsplash.com/photo-1591182136289-7955e98fa7dd?q=80&w=1000',
+    tienda: 'GAME',
+    id_tienda: 6,
+    id_categoria: 4,
+    votos_positivos: 287,
+    creado_por: 'user-1',
+    creado_en: '2024-05-14T11:30:00Z',
+    url: 'https://www.game.es/switch-oled-mario',
+    slug: 'nintendo-switch-oled-mario',
+    comentarios: []
+  },
+
+  // Deportes
+  {
+    id: 'offer-d1',
+    titulo: 'Bicicleta Eléctrica Xiaomi HIMO Z20',
+    descripcion: 'Bicicleta eléctrica plegable con 80km de autonomía.',
+    precio_actual: 699.00,
+    precio_original: 999.00,
+    porcentaje_descuento: 30,
+    url_imagen: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?q=80&w=1000',
+    tienda: 'Amazon',
+    id_tienda: 1,
+    id_categoria: 5,
+    votos_positivos: 178,
+    creado_por: 'user-2',
+    creado_en: '2024-05-13T09:45:00Z',
+    url: 'https://www.amazon.es/xiaomi-himo-z20',
+    slug: 'xiaomi-himo-z20',
+    comentarios: []
+  },
+  {
+    id: 'offer-d2',
+    titulo: 'Cinta de Correr NordicTrack T7.5S',
+    descripcion: 'Cinta de correr con inclinación y programas iFit.',
+    precio_actual: 899.00,
+    precio_original: 1299.00,
+    porcentaje_descuento: 31,
+    url_imagen: 'https://images.unsplash.com/photo-1579364046732-c21c2177730d?q=80&w=1000',
+    tienda: 'El Corte Inglés',
+    id_tienda: 3,
+    id_categoria: 5,
+    votos_positivos: 156,
+    creado_por: 'user-3',
+    creado_en: '2024-05-14T12:30:00Z',
+    url: 'https://www.elcorteingles.es/nordictrack-t7-5s',
+    slug: 'nordictrack-t7-5s',
+    comentarios: []
+  },
+
+  // Viajes
+  {
+    id: 'offer-t1',
+    titulo: 'Vuelo Directo Madrid-Nueva York',
+    descripcion: 'Vuelo ida y vuelta Madrid-Nueva York con Iberia.',
+    precio_actual: 399.00,
+    precio_original: 689.00,
+    porcentaje_descuento: 42,
+    url_imagen: 'https://images.unsplash.com/photo-1522083165195-3424ed129620?q=80&w=1000',
+    tienda: 'Iberia',
+    id_tienda: 7,
+    id_categoria: 6,
+    votos_positivos: 234,
+    creado_por: 'user-1',
+    creado_en: '2024-05-14T13:15:00Z',
+    url: 'https://www.iberia.com/es/ofertas/vuelos/madrid-nueva-york',
+    slug: 'vuelo-madrid-nueva-york',
+    comentarios: []
+  },
+  {
+    id: 'offer-t2',
+    titulo: 'Hotel 5* Gran Canaria Todo Incluido',
+    descripcion: '7 noches en hotel 5 estrellas en Gran Canaria.',
+    precio_actual: 599.00,
+    precio_original: 899.00,
+    porcentaje_descuento: 33,
+    url_imagen: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=1000',
+    tienda: 'Booking.com',
+    id_tienda: 8,
+    id_categoria: 6,
+    votos_positivos: 189,
+    creado_por: 'user-2',
+    creado_en: '2024-05-14T14:00:00Z',
+    url: 'https://www.booking.com/hotel/es/gran-canaria-5-stars',
+    slug: 'hotel-gran-canaria',
+    comentarios: []
+  }
+];
+
+// Especificaciones técnicas de productos
+export const especificacionesProductos = {
+  'iphone-15-pro-max-titanio': {
+    especificaciones: {
+      pantalla: '6.7" Super Retina XDR OLED',
+      procesador: 'A17 Pro',
+      ram: '8GB',
+      almacenamiento: '256GB',
+      camara_principal: '48MP + 12MP + 12MP',
+      camara_frontal: '12MP TrueDepth',
+      bateria: '4422 mAh',
+      sistema_operativo: 'iOS 17',
+      dimensiones: '159.9 x 76.7 x 8.25 mm',
+      peso: '221 g'
+    },
+    caracteristicas_destacadas: [
+      'Titanio de grado aeroespacial',
+      'Chip A17 Pro con GPU de 6 núcleos',
+      'ProRAW y grabación ProRes',
+      'Action Button personalizable'
+    ],
+    contenido_caja: [
+      'iPhone 15 Pro Max',
+      'Cable USB-C a USB-C',
+      'Documentación',
+      'Pin expulsión SIM'
+    ],
+    descripcion_detallada: 'El iPhone 15 Pro Max representa lo último en innovación de Apple. Construido con titanio de grado aeroespacial, ofrece la mejor relación resistencia-peso en un iPhone. Su sistema de cámaras Pro permite capturar fotos en 48MP con un nivel de detalle extraordinario y zoom óptico 5x. El nuevo chip A17 Pro ofrece un rendimiento sin precedentes en juegos y aplicaciones profesionales.'
+  },
+  'macbook-air-m3': {
+    especificaciones: {
+      pantalla: '13.6" Liquid Retina',
+      procesador: 'Apple M3',
+      ram: '8GB RAM unificada',
+      almacenamiento: '256GB SSD',
+      graficos: 'GPU 8 núcleos',
+      bateria: 'Hasta 18 horas',
+      puertos: '2x Thunderbolt/USB 4',
+      wifi: 'Wi-Fi 6E',
+      dimensiones: '30.41 x 21.5 x 1.13 cm',
+      peso: '1.24 kg'
+    },
+    caracteristicas_destacadas: [
+      'Diseño ultraligero',
+      'Silencioso sin ventilador',
+      'Magic Keyboard retroiluminado',
+      'Touch ID'
+    ],
+    contenido_caja: [
+      'MacBook Air',
+      'Adaptador de corriente USB-C 35W',
+      'Cable USB-C a MagSafe 3'
+    ],
+    descripcion_detallada: 'El nuevo MacBook Air con chip M3 eleva el rendimiento y la eficiencia a un nuevo nivel. Su diseño sin ventilador garantiza un funcionamiento completamente silencioso, mientras que la pantalla Liquid Retina ofrece colores vibrantes y textos nítidos. Perfecto para profesionales y estudiantes que buscan portabilidad sin comprometer el rendimiento.'
+  },
+  'samsung-s24-ultra': {
+    especificaciones: {
+      pantalla: '6.8" Dynamic AMOLED 2X',
+      procesador: 'Snapdragon 8 Gen 3',
+      ram: '12GB',
+      almacenamiento: '512GB',
+      camara_principal: '200MP + 12MP + 50MP + 10MP',
+      camara_frontal: '12MP',
+      bateria: '5000 mAh',
+      sistema_operativo: 'Android 14 + One UI 6.1',
+      dimensiones: '162.3 x 79 x 8.6 mm',
+      peso: '233 g'
+    },
+    caracteristicas_destacadas: [
+      'Galaxy AI integrado',
+      'S Pen incluido',
+      'Pantalla QHD+ 120Hz',
+      'Titanio de grado aeroespacial'
+    ],
+    contenido_caja: [
+      'Galaxy S24 Ultra',
+      'S Pen',
+      'Cable USB-C',
+      'Herramienta de expulsión'
+    ],
+    descripcion_detallada: 'El Samsung Galaxy S24 Ultra representa la cumbre de la innovación en smartphones Android. Con su construcción en titanio y el potente Snapdragon 8 Gen 3, ofrece un rendimiento excepcional. Su sistema de cámaras liderado por un sensor de 200MP permite capturar fotos con un nivel de detalle extraordinario, mientras que las nuevas funciones de Galaxy AI transforman la manera de interactuar con tu teléfono.'
+  },
+  'roomba-combo-j9-plus': {
+    especificaciones: {
+      tipo: 'Robot aspirador y friegasuelos',
+      potencia_succion: '5000 Pa',
+      capacidad_deposito: '500ml polvo / 400ml agua',
+      autonomia: 'Hasta 120 minutos',
+      nivel_ruido: '62 dB',
+      altura: '9.5 cm',
+      conectividad: 'WiFi, compatible con Alexa y Google Assistant',
+      navegacion: 'PrecisionVision y mapeo láser',
+      base: 'AutoEvac con capacidad para 60 días'
+    },
+    caracteristicas_destacadas: [
+      'Sistema de autovaciado',
+      'Evitación de obstáculos en tiempo real',
+      'Tecnología de limpieza adaptativa',
+      'Control por voz y app'
+    ],
+    contenido_caja: [
+      'Robot Roomba Combo j9+',
+      'Base de autovaciado Clean Base',
+      'Bolsa de recambio',
+      'Cable de alimentación'
+    ],
+    descripcion_detallada: 'El Roomba Combo j9+ revoluciona la limpieza del hogar con su tecnología de navegación PrecisionVision, que identifica y evita obstáculos en tiempo real. Su sistema de limpieza combinada permite aspirar y fregar en una sola pasada, mientras que la base de autovaciado elimina la necesidad de vaciar el depósito durante meses.'
+  },
+  'nintendo-switch-oled-mario': {
+    especificaciones: {
+      pantalla: '7" OLED 1280x720p',
+      almacenamiento: '64GB ampliable',
+      procesador: 'NVIDIA Custom Tegra',
+      ram: '4GB LPDDR4x',
+      bateria: '4310 mAh (4.5-9h)',
+      conectividad: 'WiFi, Bluetooth 4.1',
+      puertos: 'USB-C, ranura microSD',
+      dimensiones: '242 x 102 x 13.9 mm',
+      peso: '420g con Joy-Con'
+    },
+    caracteristicas_destacadas: [
+      'Pantalla OLED más grande y vívida',
+      'Soporte ajustable mejorado',
+      'Almacenamiento duplicado',
+      'Audio mejorado'
+    ],
+    contenido_caja: [
+      'Consola Nintendo Switch OLED',
+      'Joy-Con (L/R)',
+      'Base Nintendo Switch',
+      'Mario Kart 8 Deluxe (digital)',
+      '3 meses Nintendo Switch Online'
+    ],
+    descripcion_detallada: 'La Nintendo Switch OLED representa la mejor versión de la exitosa consola híbrida. Su pantalla OLED de 7 pulgadas ofrece colores más vivos y negros más profundos, mientras que el soporte ajustable más ancho proporciona mayor estabilidad en modo sobremesa. Este pack incluye el popular Mario Kart 8 Deluxe y una suscripción de 3 meses a Nintendo Switch Online.'
+  },
+  'abrigo-lana-oversize-zara': {
+    especificaciones: {
+      material: '80% lana, 20% poliamida',
+      forro: '100% poliéster',
+      cuidados: 'Lavado en seco',
+      cierre: 'Botones frontales',
+      bolsillos: 'Laterales y uno interior',
+      largo: 'Por debajo de la rodilla',
+      fit: 'Oversize',
+      colores: ['Negro', 'Camel', 'Gris']
+    },
+    caracteristicas_destacadas: [
+      'Diseño oversize moderno',
+      'Lana premium italiana',
+      'Acabados de alta calidad',
+      'Forro interior completo'
+    ],
+    guia_tallas: {
+      XS: ['36', '34 EU'],
+      S: ['38', '36 EU'],
+      M: ['40', '38 EU'],
+      L: ['42', '40 EU'],
+      XL: ['44', '42 EU']
+    },
+    descripcion_detallada: 'Este abrigo de lana oversize de Zara representa la perfecta combinación entre elegancia y comodidad. Confeccionado con lana italiana de alta calidad, ofrece un excelente aislamiento térmico sin sacrificar el estilo. Su corte oversize actual permite llevar prendas gruesas debajo, mientras que los acabados premium y el forro completo garantizan durabilidad y confort.'
+  }
+};
+
+// Funciones de utilidad
+export const getOfertasPorCategoria = (idCategoria) => ofertas.filter(oferta => oferta.id_categoria === idCategoria);
+export const getOfertasPorTienda = (idTienda) => ofertas.filter(oferta => oferta.id_tienda === idTienda);
+export const buscarOfertas = (query) => {
+  query = query.toLowerCase();
+  return ofertas.filter(oferta => 
+    oferta.titulo.toLowerCase().includes(query) ||
+    oferta.descripcion.toLowerCase().includes(query)
+  );
+};
+
+export const getOfertaPorSlug = (slug) => ofertas.find(oferta => oferta.slug === slug);
+export const getOfertasRecientes = (limite = 10) => [...ofertas]
+  .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en))
+  .slice(0, limite);
+
+export const getOfertasPopulares = (limite = 10) => [...ofertas]
+  .sort((a, b) => b.votos_positivos - a.votos_positivos)
+  .slice(0, limite);
+
+export const getMejoresDescuentos = (limite = 10) => [...ofertas]
+  .sort((a, b) => b.porcentaje_descuento - a.porcentaje_descuento)
+  .slice(0, limite);
+
+// Funciones de usuario
+export const buscarUsuarioPorEmail = (email) => users.find(u => u.email === email);
+export const getUsuarioPorId = (userId) => users.find(u => u.id === userId);
+
+// Sistema de notificaciones
+let notificaciones = [];
+
+export const agregarNotificacion = (userId, notificacion) => {
+  const nuevaNotificacion = {
+    id: generateId(),
+    userId,
+    creado_en: new Date().toISOString(),
+    leida: false,
+    ...notificacion
+  };
+  notificaciones.unshift(nuevaNotificacion);
+  return { data: nuevaNotificacion, error: null };
+};
+
+export const getNotificaciones = async (userId) => {
+  await simulateDelay();
+  const notificacionesUsuario = notificaciones.filter(n => n.userId === userId);
+  return { data: notificacionesUsuario, error: null };
+};
+
+export const marcarNotificacionLeida = async (notificacionId) => {
+  await simulateDelay();
+  const notificacion = notificaciones.find(n => n.id === notificacionId);
+  if (notificacion) {
+    notificacion.leida = true;
+    return { data: notificacion, error: null };
+  }
+  return { data: null, error: new Error('Notificación no encontrada') };
+};
+
+export const eliminarNotificacion = async (notificacionId) => {
+  await simulateDelay();
+  const index = notificaciones.findIndex(n => n.id === notificacionId);
+  if (index !== -1) {
+    notificaciones.splice(index, 1);
+    return { error: null };
+  }
+  return { error: new Error('Notificación no encontrada') };
+};
+
+// Función para obtener especificaciones de producto
+export const getEspecificacionesProducto = (slug) => {
+  return especificacionesProductos[slug] || {
+    especificaciones: {},
+    caracteristicas_destacadas: [],
+    contenido_caja: [],
+    descripcion_detallada: 'Información detallada no disponible'
+  };
+};

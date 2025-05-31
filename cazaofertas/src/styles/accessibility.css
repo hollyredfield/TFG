@@ -1,0 +1,287 @@
+:root {
+  /* Tema claro - inspirado en diseño Apple */
+  --color-bg: #f5f5f7;
+  --color-text: #1d1d1f;
+  --color-primary: #0071e3;
+  --color-secondary: #86868b;
+  --color-accent: #bf4800;
+  --color-border: #d2d2d7;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --transition-duration: 0.4s;
+  --animation-duration: 0.6s;
+  --card-radius: 16px;
+  --button-radius: 20px;
+  --navbar-blur: 12px;
+  --card-blur: 16px;
+}
+
+[data-theme='dark'] {
+  --color-bg: #000000;
+  --color-text: #f5f5f7;
+  --color-primary: #2997ff;
+  --color-secondary: #86868b;
+  --color-accent: #f56300;
+  --color-border: #1d1d1f;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+[data-color-mode='protanopia'] {
+  filter: url('#protanopia');
+}
+
+[data-color-mode='deuteranopia'] {
+  filter: url('#deuteranopia');
+}
+
+[data-color-mode='tritanopia'] {
+  filter: url('#tritanopia');
+}
+
+/* Transiciones suaves */
+* {
+  transition: background-color var(--transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+              color var(--transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+              border-color var(--transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow var(--transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+              transform var(--transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+              opacity var(--transition-duration) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animaciones modernas */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Nueva animación para entrada lateral */
+@keyframes slideInFromRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromLeft {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Nueva animación para hover */
+@keyframes pulseLight {
+  0% { box-shadow: 0 0 0 0 rgba(0, 113, 227, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 113, 227, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 113, 227, 0); }
+}
+
+/* Clases de utilidad */
+.fade-in {
+  animation: fadeIn var(--animation-duration) ease;
+}
+
+.slide-in {
+  animation: slideIn var(--animation-duration) ease;
+}
+
+.scale-in {
+  animation: scaleIn var(--animation-duration) ease;
+}
+
+/* Alto contraste */
+[data-high-contrast='true'] {
+  --color-text: #000000;
+  --color-bg: #ffffff;
+  --color-primary: #0000ff;
+  --color-secondary: #000000;
+  --color-accent: #ff0000;
+  --color-border: #000000;
+}
+
+[data-high-contrast='true'][data-theme='dark'] {
+  --color-text: #ffffff;
+  --color-bg: #000000;
+  --color-primary: #00ff00;
+  --color-secondary: #ffffff;
+  --color-accent: #ffff00;
+  --color-border: #ffffff;
+}
+
+/* Tamaño de texto aumentado */
+[data-large-text='true'] {
+  font-size: 120%;
+}
+
+[data-large-text='true'] h1 { font-size: 2.5em; }
+[data-large-text='true'] h2 { font-size: 2em; }
+[data-large-text='true'] h3 { font-size: 1.75em; }
+[data-large-text='true'] p { font-size: 1.2em; }
+
+/* Reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-reduced-motion='true'] * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Fuente para dislexia */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+}
+
+[data-dyslexic-font='true'] {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+}
+
+/* Tarjetas y contenedores */
+.card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-radius);
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px var(--shadow-color);
+}
+
+/* Botones */
+.button {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--button-radius);
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  filter: brightness(110%);
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+/* Efectos hover */
+.hover-effect {
+  transition: all 0.3s ease;
+}
+
+.hover-effect:hover {
+  transform: scale(1.05);
+}
+
+/* Sombras y efectos de profundidad */
+.shadow-sm {
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px var(--shadow-color);
+}
+
+.shadow-xl {
+  box-shadow: 0 20px 25px var(--shadow-color);
+}
+
+/* Contenedores con fondo difuminado */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Navbar lateral */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  background: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  transition: transform var(--transition-duration) ease;
+}
+
+.sidebar-left {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.sidebar-right {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Carrusel */
+.carousel {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-inner {
+  display: flex;
+  transition: transform var(--transition-duration) ease;
+}
+
+.carousel-item {
+  flex: 0 0 100%;
+}
+
+.carousel-nav {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  opacity: 0.5;
+  transition: opacity var(--transition-duration) ease;
+}
+
+.carousel-dot.active {
+  opacity: 1;
+  background: var(--color-primary);
+}

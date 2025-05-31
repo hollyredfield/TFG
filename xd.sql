@@ -1,0 +1,362 @@
+-- =============================================
+-- SCRIPT COMPLETO PARA LA BASE DE DATOS DE CAZAOFERTAS
+-- Mayo 2025
+-- =============================================
+
+-- Limpiar tablas existentes
+DROP TABLE IF EXISTS notificaciones CASCADE;
+DROP TABLE IF EXISTS comentarios CASCADE;
+DROP TABLE IF EXISTS votos CASCADE;
+DROP TABLE IF EXISTS ofertas CASCADE;
+DROP TABLE IF EXISTS categorias CASCADE;
+DROP TABLE IF EXISTS perfiles_usuario CASCADE;
+
+-- Crear extensiones necesarias
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- =============================================
+-- TABLAS PRINCIPALES
+-- =============================================
+
+-- Tabla de perfiles de usuario
+CREATE TABLE perfiles_usuario (
+    id UUID PRIMARY KEY,
+    nombre_usuario TEXT UNIQUE NOT NULL,
+    url_avatar TEXT,
+    biografia TEXT,
+    puntuacion_reputacion INTEGER DEFAULT 0,
+    esta_verificado BOOLEAN DEFAULT FALSE,
+    notificaciones_email BOOLEAN DEFAULT TRUE,
+    creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT fk_auth_user FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- Tabla de categorías
+CREATE TABLE categorias (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nombre TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    icono TEXT,
+    descripcion TEXT,
+    color TEXT DEFAULT '#6366f1',
+    orden_visualizacion INTEGER DEFAULT 0,
+    creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tabla de ofertas
+CREATE TABLE ofertas (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    titulo TEXT NOT NULL,
+    descripcion TEXT NOT NULL,
+    precio_actual DECIMAL NOT NULL,
+    precio_original DECIMAL,
+    url TEXT NOT NULL,
+    url_imagen TEXT,
+    tienda TEXT NOT NULL,
+    id_usuario UUID NOT NULL,
+    id_categoria UUID NOT NULL,
+    ha_expirado BOOLEAN DEFAULT FALSE,
+    expira_en TIMESTAMP WITH TIME ZONE,
+    esta_verificada BOOLEAN DEFAULT TRUE,
+    votos_positivos INTEGER DEFAULT 0,
+    votos_negativos INTEGER DEFAULT 0,
+    contador_comentarios INTEGER DEFAULT 0,
+    contador_vistas INTEGER DEFAULT 0,
+    creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT fk_usuario FOREIGN KEY (id_usuario) REFERENCES auth.users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_categoria FOREIGN KEY (id_categoria) REFERENCES categorias(id) ON DELETE CASCADE,
+    porcentaje_descuento INTEGER GENERATED ALWAYS AS (
+        CASE 
+            WHEN precio_original IS NOT NULL AND precio_original > 0 AND precio_actual < precio_original 
+            THEN ROUND(((precio_original - precio_actual) / precio_original) * 100)
+            ELSE NULL 
+        END
+    ) STORED
+);
+
+-- Tabla de votos
+CREATE TABLE votos (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_oferta UUID NOT NULL,
+    id_usuario UUID NOT NULL,
+    tipo_voto TEXT NOT NULL CHECK (tipo_voto IN ('up', 'down')),
+    creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT fk_oferta FOREIGN KEY (id_oferta) REFERENCES ofertas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_usuario FOREIGN KEY (id_usuario) REFERENCES auth.users(id) ON DELETE CASCADE,
+    CONSTRAINT unique_usuario_oferta UNIQUE (id_usuario, id_oferta)
+);
+
+-- Tabla de comentarios
+CREATE TABLE comentarios (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_oferta UUID NOT NULL,
+    id_usuario UUID NOT NULL,
+    contenido TEXT NOT NULL,
+    ha_sido_editado BOOLEAN DEFAULT FALSE,
+    creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT fk_oferta FOREIGN KEY (id_oferta) REFERENCES ofertas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_usuario FOREIGN KEY (id_usuario) REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+-- Tabla de notificaciones
+CREATE TABLE notificaciones (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_usuario UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    tipo TEXT NOT NULL,
+    mensaje TEXT NOT NULL,
+    leida BOOLEAN DEFAULT FALSE,
+    datos JSONB,
+    creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- =============================================
+-- ÍNDICES
+-- =============================================
+
+-- Índices para búsquedas de texto
+CREATE INDEX IF NOT EXISTS indice_titulo_oferta ON ofertas USING GIN (titulo gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS indice_descripcion_oferta ON ofertas USING GIN (descripcion gin_trgm_ops);
+
+-- Índices para ofertas
+CREATE INDEX IF NOT EXISTS idx_ofertas_expiradas ON ofertas (ha_expirado);
+CREATE INDEX IF NOT EXISTS idx_ofertas_categoria_estado ON ofertas (id_categoria, ha_expirado);
+CREATE INDEX IF NOT EXISTS idx_ofertas_tienda ON ofertas (tienda);
+CREATE INDEX IF NOT EXISTS idx_ofertas_descuento ON ofertas (porcentaje_descuento);
+CREATE INDEX IF NOT EXISTS idx_ofertas_creado_en ON ofertas (creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_ofertas_id_usuario ON ofertas (id_usuario);
+
+-- Índices para categorías
+CREATE INDEX IF NOT EXISTS idx_categorias_slug ON categorias (slug);
+CREATE INDEX IF NOT EXISTS idx_categorias_orden ON categorias (orden_visualizacion);
+
+-- Índices para comentarios y votos
+CREATE INDEX IF NOT EXISTS idx_comentarios_id_oferta ON comentarios (id_oferta);
+CREATE INDEX IF NOT EXISTS idx_comentarios_id_usuario ON comentarios (id_usuario);
+CREATE INDEX IF NOT EXISTS idx_votos_id_oferta ON votos (id_oferta);
+CREATE INDEX IF NOT EXISTS idx_votos_id_usuario ON votos (id_usuario);
+
+-- =============================================
+-- VISTAS
+-- =============================================
+
+-- Vista para perfiles en inglés
+CREATE OR REPLACE VIEW user_profiles AS
+SELECT 
+    id,
+    nombre_usuario AS username,
+    url_avatar AS avatar_url,
+    biografia AS bio,
+    puntuacion_reputacion AS reputation_score,
+    esta_verificado AS is_verified,
+    notificaciones_email AS email_notifications,
+    creado_en AS created_at,
+    actualizado_en AS updated_at
+FROM perfiles_usuario;
+
+-- Vista para estadísticas de categorías
+CREATE OR REPLACE VIEW vista_estadisticas_categorias AS
+SELECT 
+    c.id,
+    c.nombre,
+    c.slug,
+    c.icono,
+    c.descripcion,
+    c.color,
+    COUNT(o.id) as total_ofertas,
+    COUNT(o.id) FILTER (WHERE NOT o.ha_expirado) as ofertas_activas,
+    COALESCE(AVG(o.porcentaje_descuento) FILTER (WHERE o.porcentaje_descuento IS NOT NULL), 0) AS descuento_promedio
+FROM 
+    categorias c
+LEFT JOIN 
+    ofertas o ON c.id = o.id_categoria
+GROUP BY 
+    c.id, c.nombre, c.slug, c.icono, c.descripcion, c.color;
+
+-- Vista para tiendas populares
+CREATE OR REPLACE VIEW vista_tiendas_populares AS
+SELECT 
+    tienda,
+    COUNT(*) as total_ofertas,
+    COUNT(*) FILTER (WHERE NOT ha_expirado) as ofertas_activas,
+    COALESCE(AVG(porcentaje_descuento) FILTER (WHERE porcentaje_descuento IS NOT NULL), 0) AS descuento_promedio,
+    MAX(creado_en) as ultima_oferta
+FROM 
+    ofertas
+GROUP BY 
+    tienda
+HAVING 
+    COUNT(*) FILTER (WHERE NOT ha_expirado) > 0
+ORDER BY 
+    COUNT(*) FILTER (WHERE NOT ha_expirado) DESC;
+
+-- =============================================
+-- FUNCIONES Y TRIGGERS
+-- =============================================
+
+-- Función para crear perfil de usuario automáticamente
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.perfiles_usuario (id, nombre_usuario)
+    VALUES (NEW.id, SPLIT_PART(NEW.email, '@', 1));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger para crear perfil al registrarse
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_new_user();
+
+-- Función para actualizar fecha de actualización
+CREATE OR REPLACE FUNCTION actualizar_fecha_actualizacion()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.actualizado_en = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Triggers para actualizar fechas
+CREATE TRIGGER actualizar_fecha_perfil_usuario
+    BEFORE UPDATE ON perfiles_usuario
+    FOR EACH ROW
+    EXECUTE FUNCTION actualizar_fecha_actualizacion();
+
+CREATE TRIGGER actualizar_fecha_categorias
+    BEFORE UPDATE ON categorias
+    FOR EACH ROW
+    EXECUTE FUNCTION actualizar_fecha_actualizacion();
+
+CREATE TRIGGER actualizar_fecha_ofertas
+    BEFORE UPDATE ON ofertas
+    FOR EACH ROW
+    EXECUTE FUNCTION actualizar_fecha_actualizacion();
+
+-- Función para actualizar ofertas expiradas
+CREATE OR REPLACE FUNCTION actualizar_ofertas_expiradas()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Evitar recursión infinita
+    IF (TG_OP = 'UPDATE' AND 
+        OLD.ha_expirado = FALSE AND 
+        NEW.ha_expirado = TRUE AND
+        OLD.titulo = NEW.titulo) THEN
+        RETURN NEW;
+    END IF;
+
+    UPDATE ofertas
+    SET ha_expirado = TRUE
+    WHERE expira_en < NOW() 
+        AND ha_expirado = FALSE;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para actualizar ofertas expiradas
+CREATE TRIGGER trigger_actualizar_ofertas_expiradas
+    AFTER INSERT OR UPDATE ON ofertas
+    FOR EACH ROW
+    EXECUTE FUNCTION actualizar_ofertas_expiradas();
+
+-- =============================================
+-- POLÍTICAS DE SEGURIDAD (RLS)
+-- =============================================
+
+-- Habilitar RLS en todas las tablas
+ALTER TABLE perfiles_usuario ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ofertas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categorias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE votos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE comentarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notificaciones ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para perfiles de usuario
+CREATE POLICY "ver_perfiles" ON perfiles_usuario FOR SELECT USING (true);
+CREATE POLICY "editar_perfil_propio" ON perfiles_usuario FOR UPDATE USING (auth.uid() = id);
+
+-- Políticas para ofertas
+CREATE POLICY "ver_ofertas" ON ofertas FOR SELECT USING (true);
+CREATE POLICY "crear_ofertas" ON ofertas FOR INSERT WITH CHECK (auth.uid() = id_usuario);
+CREATE POLICY "editar_ofertas_propias" ON ofertas FOR UPDATE USING (auth.uid() = id_usuario);
+CREATE POLICY "eliminar_ofertas_propias" ON ofertas FOR DELETE USING (auth.uid() = id_usuario);
+
+-- Políticas para categorías
+CREATE POLICY "acceso_categorias" ON categorias FOR ALL USING (true);
+
+-- Políticas para votos
+CREATE POLICY "ver_votos" ON votos FOR SELECT USING (true);
+CREATE POLICY "gestionar_votos_propios" ON votos FOR ALL USING (auth.uid() = id_usuario);
+
+-- Políticas para comentarios
+CREATE POLICY "ver_comentarios" ON comentarios FOR SELECT USING (true);
+CREATE POLICY "gestionar_comentarios_propios" ON comentarios FOR ALL USING (auth.uid() = id_usuario);
+
+-- Políticas para notificaciones
+CREATE POLICY "gestionar_notificaciones_propias" ON notificaciones FOR ALL USING (auth.uid() = id_usuario);
+
+-- =============================================
+-- DATOS INICIALES
+-- =============================================
+
+-- Insertar categorías iniciales
+INSERT INTO categorias (nombre, slug, icono, descripcion, color, orden_visualizacion) VALUES
+('Tecnología', 'tecnologia', '💻', 'Ofertas en dispositivos electrónicos, gadgets y más', '#3B82F6', 1),
+('Moda', 'moda', '👕', 'Las mejores ofertas en ropa, calzado y accesorios', '#EC4899', 2),
+('Hogar', 'hogar', '🏠', 'Productos para decorar y equipar tu hogar', '#10B981', 3),
+('Videojuegos', 'videojuegos', '🎮', 'Consolas, juegos y accesorios para gamers', '#8B5CF6', 4),
+('Alimentación', 'alimentacion', '🍕', 'Descuentos en supermercados y productos alimenticios', '#F59E0B', 5),
+('Belleza', 'belleza', '💄', 'Productos de cosmética, perfumería y cuidado personal', '#F472B6', 6),
+('Deportes', 'deportes', '⚽', 'Equipamiento deportivo y ropa para estar en forma', '#2563EB', 7),
+('Viajes', 'viajes', '✈️', 'Chollos en vuelos, hoteles y paquetes vacacionales', '#6366F1', 8),
+('Libros', 'libros', '📚', 'Las mejores ofertas en libros y ebooks', '#4B5563', 9),
+('Mascotas', 'mascotas', '🐾', 'Todo para tus animales de compañía', '#8B5C34', 10),
+('Electrónica', 'electronica', '📱', 'Dispositivos electrónicos y gadgets', '#3B82F6', 11),
+('Informática', 'informatica', '💻', 'Ordenadores, portátiles, componentes y accesorios', '#2563EB', 12),
+('Bricolaje', 'bricolaje', '🔨', 'Herramientas y materiales para tus proyectos', '#F97316', 13),
+('Salud', 'salud', '🏥', 'Productos para el cuidado de la salud', '#059669', 14),
+('Juguetes', 'juguetes', '🧸', 'Juguetes para todas las edades', '#EF4444', 15);
+
+-- Crear perfiles para usuarios existentes
+INSERT INTO public.perfiles_usuario (id, nombre_usuario)
+SELECT id, SPLIT_PART(email, '@', 1)
+FROM auth.users
+WHERE id NOT IN (SELECT id FROM public.perfiles_usuario);
+
+
+
+
+
+
+
+
+
+DROP VIEW IF EXISTS vista_estadisticas_categorias;
+CREATE VIEW vista_estadisticas_categorias AS
+SELECT 
+    c.id,
+    c.nombre,
+    c.slug,
+    c.icono,
+    c.descripcion,
+    c.color,
+    c.orden_visualizacion,
+    COUNT(o.id) as total_ofertas,
+    COUNT(o.id) FILTER (WHERE NOT o.ha_expirado) as ofertas_activas,
+    COALESCE(AVG(o.porcentaje_descuento) FILTER (WHERE o.porcentaje_descuento IS NOT NULL), 0) AS descuento_promedio
+FROM 
+    categorias c
+LEFT JOIN 
+    ofertas o ON c.id = o.id_categoria
+GROUP BY 
+    c.id, c.nombre, c.slug, c.icono, c.descripcion, c.color, c.orden_visualizacion;

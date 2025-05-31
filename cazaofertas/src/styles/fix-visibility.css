@@ -1,0 +1,29 @@
+/* Estilos de seguridad para garantizar visibilidad de las secciones críticas */
+.feature-card {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+.staggered-container,
+.staggered-item {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+.text-primary {
+  color: #4F46E5;
+}
+
+/* Asegura que las tarjetas siempre tengan un fondo visible */
+.feature-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+}
+
+html.dark .feature-card {
+  background-color: rgba(55, 65, 81, 0.4);
+}

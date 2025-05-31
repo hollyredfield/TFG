@@ -1,0 +1,622 @@
+/**
+ * Animation helper functions for CazaOfertas presentation
+ */
+
+// Global fallback image URL for images that fail to load
+const FALLBACK_IMAGE_URL = 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?q=80&w=1000';
+const DEFAULT_BLUR_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mN88B8AAsUB4ZtvXtIAAAAASUVORK5CYII=';
+
+// Reveal elements as they enter the viewport
+export function setupIntersectionAnimations() {
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.15
+  };
+
+  const handleIntersection = (entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target); // Only animate once
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver(handleIntersection, observerOptions);
+  
+  // Observe elements with fade-in-up class
+  document.querySelectorAll('.fade-in-up').forEach(el => {
+    observer.observe(el);
+  });
+
+  // Set up staggered animations
+  document.querySelectorAll('.staggered-container').forEach(container => {
+    const items = container.querySelectorAll('.staggered-item');
+    
+    const staggerObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        items.forEach((item, index) => {
+          setTimeout(() => {
+            item.classList.add('visible');
+          }, index * 150); // 150ms delay between each item
+        });
+        staggerObserver.unobserve(container);
+      }
+    }, observerOptions);
+    
+    staggerObserver.observe(container);
+  });
+}
+
+// Animate number counters
+export function animateCounters() {
+  const counters = document.querySelectorAll('.counter-value');
+  const options = {
+    threshold: 0.5
+  };
+  
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = entry.target;
+        // Get numeric value handling formats like "2M+", "€52M", "4.9"
+        const valueStr = target.getAttribute('data-target') || target.textContent;
+        let finalValue = parseFloat(valueStr.replace(/[^\d.]/g, ''));
+        
+        if (isNaN(finalValue) || finalValue <= 0) {
+          finalValue = parseInt(target.textContent.replace(/\D/g, '') || '0');
+        }
+        
+        // Keep original format with suffix/prefix
+        const hasPrefix = /^[^\d]+/.test(target.textContent);
+        const hasSuffix = /[^\d]+$/.test(target.textContent);
+        const prefix = hasPrefix ? target.textContent.match(/^[^\d]+/)[0] : '';
+        const suffix = hasSuffix ? target.textContent.match(/[^\d.]+$/)[0] : '';
+        
+        const duration = 2000; // 2 seconds
+        const stepTime = 50; // update every 50ms
+        const steps = duration / stepTime;
+        const increment = finalValue / steps;
+        let currentValue = 0;
+        
+        const timer = setInterval(() => {
+          currentValue += increment;
+          
+          if (currentValue >= finalValue) {
+            clearInterval(timer);
+            target.textContent = prefix + finalValue.toLocaleString() + suffix;
+          } else {
+            target.textContent = prefix + Math.floor(currentValue).toLocaleString() + suffix;
+          }
+        }, stepTime);
+        
+        counterObserver.unobserve(target);
+      }
+    });
+  }, options);
+  
+  counters.forEach(counter => {
+    counterObserver.observe(counter);
+  });
+}  
+
+// Handle parallax effects on scroll
+export function setupParallaxEffects() {
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    
+    // Parallax for hero section elements
+    document.querySelectorAll('.parallax-element').forEach(element => {
+      const speed = parseFloat(element.getAttribute('data-speed') || 0.2);
+      element.style.transform = `translateY(${scrollY * speed}px)`;
+    });
+    
+    // Opacity changes on scroll
+    document.querySelectorAll('.fade-on-scroll').forEach(element => {
+      const startOffset = parseInt(element.getAttribute('data-offset-start') || 100);
+      const endOffset = parseInt(element.getAttribute('data-offset-end') || 500);
+      
+      const rect = element.getBoundingClientRect();
+      const elementTop = rect.top + scrollY;
+      
+      // Calculate opacity based on scroll position
+      const opacity = Math.max(0, Math.min(1, 
+        1 - (scrollY - elementTop + startOffset) / (endOffset - startOffset)
+      ));
+      
+      element.style.opacity = opacity;
+    });
+  });
+}
+
+// Enhanced image loading with placeholders, blur-up and fallbacks
+export function setupEnhancedImageLoading() {
+  // Check if IntersectionObserver is available
+  if (!('IntersectionObserver' in window)) {
+    console.warn('IntersectionObserver not supported. Using basic image loading.');
+    document.querySelectorAll('img:not(.no-lazy)').forEach(img => {
+      const dataSrc = img.getAttribute('data-src');
+      if (dataSrc) img.src = dataSrc;
+      img.classList.add('loaded');
+      
+      // Set up error handling
+      img.onerror = function() {
+        if (this.src !== FALLBACK_IMAGE_URL) {
+          this.src = FALLBACK_IMAGE_URL;
+          this.classList.add('fallback', 'loaded');
+        }
+      };
+    });
+    return;
+  }
+
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        
+        // Check if it's already loaded or being processed
+        if (img.classList.contains('loaded') || img.classList.contains('loading')) return;
+        
+        // Mark as loading to prevent duplicate loading
+        img.classList.add('loading');
+        
+        // Ensure minimum dimensions are set to prevent layout shifts
+        if (!img.style.minHeight) img.style.minHeight = img.getAttribute('height') || '200px';
+        if (!img.style.minWidth) img.style.minWidth = img.getAttribute('width') || '200px';
+        
+        // Apply blur placeholder if available
+        const placeholder = img.getAttribute('data-placeholder') || DEFAULT_BLUR_IMAGE;
+        if (!img.style.backgroundImage) {
+          img.style.backgroundImage = `url(${placeholder})`;
+          img.style.backgroundSize = 'cover';
+          img.style.backgroundPosition = 'center';
+        }
+        
+        // Load actual image
+        const actualSrc = img.getAttribute('data-src') || img.src;
+        const tempImg = new Image();
+        
+        let loadTimeout = setTimeout(() => {
+          // If image takes too long to load, use fallback
+          if (!img.classList.contains('loaded')) {
+            console.warn(`Image load timeout for ${actualSrc}, using fallback`);
+            img.src = FALLBACK_IMAGE_URL;
+            img.classList.add('fallback', 'loaded');
+            img.classList.remove('loading');
+            img.style.backgroundImage = 'none';
+          }
+        }, 10000); // 10 second timeout
+        
+        tempImg.onload = () => {
+          clearTimeout(loadTimeout);
+          img.src = actualSrc;
+          img.classList.add('loaded');
+          img.classList.add('fade-in');
+          img.classList.remove('loading');
+          img.style.backgroundImage = 'none';
+          
+          // Clean up data attributes
+          if (img.hasAttribute('data-src')) img.removeAttribute('data-src');
+        };
+        
+        tempImg.onerror = () => {
+          clearTimeout(loadTimeout);
+          img.src = FALLBACK_IMAGE_URL;
+          img.classList.add('fallback', 'loaded');
+          img.classList.remove('loading');
+          img.style.backgroundImage = 'none';
+          
+          console.warn(`Image failed to load: ${actualSrc}, using fallback`);
+        };
+        
+        tempImg.src = actualSrc;
+        imageObserver.unobserve(img);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '200px' });
+  
+  // Apply to all images
+  document.querySelectorAll('img:not(.no-lazy)').forEach(img => {
+    // Skip images that are already loaded
+    if (img.complete && img.naturalHeight !== 0) {
+      img.classList.add('loaded');
+      return;
+    }
+    
+    // Add placeholder classes
+    img.classList.add('lazy-image');
+    
+    // Set up global error handler in case IntersectionObserver fails
+    img.onerror = function() {
+      if (this.src !== FALLBACK_IMAGE_URL) {
+        this.src = FALLBACK_IMAGE_URL;
+        this.classList.add('fallback', 'loaded');
+        this.classList.remove('loading');
+      }
+    };
+    
+    imageObserver.observe(img);
+  });
+}
+
+// Carousel functionality with touch support
+export function setupCarousel(trackSelector = '.carousel-track', options = {}) {
+  const track = document.querySelector(trackSelector);
+  if (!track) return;
+  
+  const slides = Array.from(track.children);
+  const slidesPerView = options.slidesPerView || (window.innerWidth < 768 ? 1 : (window.innerWidth < 1024 ? 2 : 3));
+  const gap = options.gap || parseInt(getComputedStyle(track).gap) || 0;
+  
+  let currentIndex = 0;
+  let isDragging = false;
+  let startPos = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  
+  // Navigation dots
+  const carouselNav = document.querySelector('.carousel-nav');
+  const totalPages = Math.ceil(slides.length / slidesPerView);
+  
+  // Create navigation dots if they don't exist
+  if (carouselNav) {
+    carouselNav.innerHTML = '';
+    for (let i = 0; i < totalPages; i++) {
+      const dot = document.createElement('div');
+      dot.classList.add('carousel-dot');
+      dot.addEventListener('click', () => goToSlide(i));
+      carouselNav.appendChild(dot);
+    }
+  }
+  
+  const nextBtn = document.querySelector('.carousel-next') || 
+                  document.querySelector('[data-carousel-next]');
+  const prevBtn = document.querySelector('.carousel-prev') || 
+                  document.querySelector('[data-carousel-prev]');
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', nextSlide);
+  }
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', prevSlide);
+  }
+    function updateCarousel() {
+    // Make sure we have slides
+    if (!slides.length) return;
+    
+    // Calculate slide width including gap
+    const slideRect = slides[0].getBoundingClientRect();
+    const slideWidth = slideRect.width + gap;
+    
+    const offset = -currentIndex * slideWidth;
+    track.style.transform = `translateX(${offset}px)`;
+    
+    // Fix height issues that might cause empty space
+    let maxHeight = 0;
+    slides.forEach(slide => {
+      const slideHeight = slide.offsetHeight;
+      if (slideHeight > maxHeight) {
+        maxHeight = slideHeight;
+      }
+    });
+    
+    // Only set a minimum height if we found a valid height
+    if (maxHeight > 0) {
+      track.style.minHeight = `${maxHeight}px`;
+    }
+    
+    // Update active states
+    slides.forEach((slide, index) => {
+      const isActive = index >= currentIndex && index < currentIndex + slidesPerView;
+      slide.classList.toggle('active', isActive);
+      
+      // Ensure all images in visible slides are loaded
+      const lazyImages = slide.querySelectorAll('img[loading="lazy"], img[data-src]');
+      if (isActive && lazyImages.length) {
+        lazyImages.forEach(img => {
+          // Set minimum dimensions to prevent layout shift
+          if (!img.style.minHeight) img.style.minHeight = '200px';
+          if (!img.style.minWidth) img.style.minWidth = '200px';
+          
+          const dataSrc = img.getAttribute('data-src');
+          if (dataSrc) {
+            img.src = dataSrc;
+            img.removeAttribute('data-src');
+          }
+          img.loading = 'eager';
+        });
+      }
+    });
+    
+    // Update navigation dots
+    if (carouselNav) {
+      Array.from(carouselNav.children).forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+  }
+  
+  function nextSlide() {
+    if (currentIndex < slides.length - slidesPerView) {
+      currentIndex++;
+      updateCarousel();
+    } else {
+      // Optionally loop
+      if (options.loop) {
+        currentIndex = 0;
+        updateCarousel();
+      }
+    }
+  }
+  
+  function prevSlide() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    } else {
+      // Optionally loop
+      if (options.loop) {
+        currentIndex = slides.length - slidesPerView;
+        updateCarousel();
+      }
+    }
+  }
+  
+  function goToSlide(index) {
+    currentIndex = Math.min(Math.max(0, index), slides.length - slidesPerView);
+    updateCarousel();
+  }
+  
+  // Touch/drag support
+  function touchStart(event) {
+    if (slides.length <= slidesPerView && !options.loop) return;
+    
+    isDragging = true;
+    startPos = getPositionX(event);
+    track.style.cursor = 'grabbing';
+    track.style.transition = 'none';
+    
+    document.addEventListener('mousemove', touchMove);
+    document.addEventListener('mouseup', touchEnd);
+    document.addEventListener('touchmove', touchMove);
+    document.addEventListener('touchend', touchEnd);
+  }
+  
+  function touchMove(event) {
+    if (!isDragging) return;
+    
+    const currentPosition = getPositionX(event);
+    const slideRect = slides[0].getBoundingClientRect();
+    const slideWidth = slideRect.width + gap;
+    
+    currentTranslate = prevTranslate + currentPosition - startPos;
+    
+    // Resistance when dragging beyond edges
+    const minTranslate = -((slides.length - slidesPerView) * slideWidth);
+    if (currentTranslate > 0) {
+      currentTranslate = currentTranslate * 0.3;
+    } else if (currentTranslate < minTranslate) {
+      currentTranslate = minTranslate + (currentTranslate - minTranslate) * 0.3;
+    }
+    
+    track.style.transform = `translateX(${currentTranslate}px)`;
+  }
+  
+  function touchEnd() {
+    isDragging = false;
+    track.style.cursor = 'grab';
+    track.style.transition = 'transform 0.3s ease-out';
+    
+    const slideRect = slides[0].getBoundingClientRect();
+    const slideWidth = slideRect.width + gap;
+    
+    // Adjust position to closest slide based on drag direction
+    const moveSizeThreshold = slideWidth * 0.2;
+    const dragDistance = prevTranslate - currentTranslate;
+    
+    if (Math.abs(dragDistance) > moveSizeThreshold) {
+      if (dragDistance > 0) {
+        currentIndex = Math.min(currentIndex + 1, slides.length - slidesPerView);
+      } else {
+        currentIndex = Math.max(currentIndex - 1, 0);
+      }
+    }
+    
+    prevTranslate = -currentIndex * slideWidth;
+    updateCarousel();
+    
+    document.removeEventListener('mousemove', touchMove);
+    document.removeEventListener('mouseup', touchEnd);
+    document.removeEventListener('touchmove', touchMove);
+    document.removeEventListener('touchend', touchEnd);
+  }
+  
+  function getPositionX(event) {
+    return event.type.includes('mouse') 
+      ? event.clientX 
+      : event.touches[0].clientX;
+  }
+  
+  // Auto-advancing carousel
+  let interval;
+  function startAutoPlay() {
+    if (options.autoPlay) {
+      interval = setInterval(() => {
+        if (currentIndex >= slides.length - slidesPerView) {
+          if (options.loop) {
+            currentIndex = 0;
+          } else {
+            clearInterval(interval);
+            return;
+          }
+        } else {
+          currentIndex++;
+        }
+        updateCarousel();
+      }, options.autoPlayInterval || 5000);
+    }
+  }
+  
+  function stopAutoPlay() {
+    if (interval) clearInterval(interval);
+  }
+    // Touch event listeners
+  track.addEventListener('mousedown', touchStart);
+  track.addEventListener('touchstart', touchStart, { passive: true });
+  
+  // Pause auto-play on hover
+  if (options.pauseOnHover) {
+    track.addEventListener('mouseenter', stopAutoPlay);
+    track.addEventListener('mouseleave', startAutoPlay);
+  }
+  
+  // Initialize carousel
+  updateCarousel();
+  startAutoPlay();
+  
+  // Handle resize events
+  window.addEventListener('resize', () => {
+    const newSlidesPerView = window.innerWidth < 768 ? 1 : (window.innerWidth < 1024 ? 2 : 3);
+    if (slidesPerView !== newSlidesPerView) {
+      currentIndex = Math.min(currentIndex, slides.length - slidesPerView);
+      updateCarousel();
+    }
+  });
+  
+  // Return control functions for external use
+  return {
+    next: nextSlide,
+    prev: prevSlide,
+    goTo: goToSlide,
+    getCurrentIndex: () => currentIndex,
+    getSlideCount: () => slides.length
+  };
+}
+
+// Handle global image error fallbacks
+export function setupGlobalImageFallbacks() {
+  // Set up a global handler for image loading errors
+  const errorHandler = (e) => {
+    const target = e.target || e;
+    if (target.tagName === 'IMG' && target.src !== FALLBACK_IMAGE_URL) {
+      console.warn(`Image error caught for ${target.src}, applying fallback`);
+      target.src = FALLBACK_IMAGE_URL;
+      target.classList.add('img-fallback-loaded');
+      
+      // Set dimensions to prevent layout shift
+      if (!target.style.minHeight) {
+        target.style.minHeight = '200px';
+      }
+      if (!target.style.minWidth) {
+        target.style.minWidth = '200px';
+      }
+      
+      // Prevent error from propagating if it's an event
+      if (e.preventDefault) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      return true;
+    }
+    return false;
+  };
+  
+  // Use capture phase to catch errors before they bubble
+  window.addEventListener('error', errorHandler, true);
+  
+  // Add fallback for all images
+  document.querySelectorAll('img').forEach(img => {
+    if (!img.hasAttribute('data-fallback-applied')) {
+      img.setAttribute('data-fallback-applied', 'true');
+      img.onerror = errorHandler;
+      
+      // Set minimum dimensions for images to prevent layout shifts
+      img.style.minHeight = img.height || '200px';
+      img.style.minWidth = img.width || '200px';
+    }
+  });
+}
+
+// Keep track of initialization state to avoid double initialization
+let animationsInitialized = false;
+
+// Initialize all animations
+export function initializeAllAnimations() {
+  try {
+    // Don't initialize more than once
+    if (animationsInitialized) {
+      console.info('Animations already initialized, skipping...');
+      return;
+    }
+    
+    // Flag as initialized immediately to prevent race conditions
+    animationsInitialized = true;
+    
+    // Make sure DOM is fully loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeFunctions);
+    } else {
+      initializeFunctions();
+    }
+    
+    function initializeFunctions() {
+      console.info('Initializing animations and UI enhancements...');
+      
+      try {
+        // Apply global image fallbacks immediately (important for error handling)
+        setupGlobalImageFallbacks();
+        
+        // Enhanced image loading should come before other visual effects
+        setupEnhancedImageLoading();
+        
+        // Set up intersection animations
+        setupIntersectionAnimations();
+        
+        // Number counters
+        animateCounters();
+        
+        // Parallax effects
+        setupParallaxEffects();
+        
+        // Setup carousel with appropriate options for screen size
+        setupCarousel('.carousel-track', {
+          slidesPerView: window.innerWidth < 640 ? 1 : window.innerWidth < 768 ? 2 : window.innerWidth < 1024 ? 3 : 4,
+          autoPlay: true,
+          autoPlayInterval: 6000,
+          pauseOnHover: true,
+          loop: true
+        });
+        
+        // Add generic animations after a short delay
+        setTimeout(() => {
+          document.querySelectorAll('.animate-on-load').forEach((el, index) => {
+            setTimeout(() => {
+              el.classList.add('animated');
+            }, index * 150);
+          });
+          
+          // Ensure visibility of important sections
+          document.querySelectorAll('.staggered-container, .staggered-item, .feature-card').forEach(el => {
+            el.style.opacity = '1';
+          });
+        }, 300);
+      } catch (error) {
+        console.error('Error initializing animations:', error);
+        
+        // Ensure visibility of important elements even if animations fail
+        document.querySelectorAll('.staggered-container, .staggered-item, .feature-card, .fade-in-up, .animate-on-load').forEach(el => {
+          el.style.opacity = '1';
+          el.classList.add('visible', 'animated');
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Fatal error in animation initialization:', error);
+  }
+}
+
+// Export default initialization
+export default initializeAllAnimations;

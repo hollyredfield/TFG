@@ -1,0 +1,49 @@
+@import './styles/modern.css';
+@import './styles/presentation.css';
+@import './styles/fix-visibility.css';
+@import './styles/mobile.css'; /* Added mobile optimizations */
+@import './styles/zoom-styles.css'; /* Adds zoom capability for mobile APK */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-light dark:bg-bg-dark text-text-light dark:text-text-dark;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight text-text-light dark:text-text-dark;
+  }
+
+  p {
+    @apply text-text-light dark:text-text-dark;
+  }
+
+  a {
+    @apply text-primary hover:text-primary-hover transition-colors;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-xl transition-all duration-300 font-medium;
+  }
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-hover text-text-dark shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply bg-bg-hover dark:bg-bg-darkHover hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .section-title {
+    @apply text-2xl sm:text-3xl font-bold mb-6 text-text-light dark:text-text-dark;
+  }
+  
+  .card {
+    @apply rounded-large bg-bg-card dark:bg-bg-cardDark shadow-soft hover:shadow-medium transition-all duration-300 text-text-light dark:text-text-dark;
+  }
+}

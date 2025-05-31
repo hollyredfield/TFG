@@ -1,0 +1,800 @@
+// Simple UUID generator function
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// Placeholder definitions for mock data parts
+// These should be populated with more detailed mock data as needed.
+const users = [
+  { id: 'user1', username: 'Alice', email: 'alice@example.com', profilePicture: 'https://via.placeholder.com/150/FFC0CB/000000?Text=A', role: 'user', createdAt: new Date().toISOString() },
+  { id: 'user2', username: 'Bob', email: 'bob@example.com', profilePicture: 'https://via.placeholder.com/150/ADD8E6/000000?Text=B', role: 'user', createdAt: new Date().toISOString() },
+  { id: 'adminUser', username: 'AdminBoss', email: 'admin@example.com', profilePicture: 'https://via.placeholder.com/150/D3D3D3/000000?Text=Adm', role: 'admin', createdAt: new Date().toISOString() }
+];
+
+const categorias = [
+  { id: 'electronica', nombre: 'Electrónica', icono: 'FaLaptop', slug: 'electronica', description: 'Ofertas en productos electrónicos.' },
+  { id: 'moda', nombre: 'Moda', icono: 'FaTshirt', slug: 'moda', description: 'Las últimas tendencias en moda.' },
+  { id: 'hogar', nombre: 'Hogar', icono: 'FaHome', slug: 'hogar', description: 'Todo para tu hogar.' },
+  { id: 'videojuegos', nombre: 'Videojuegos', icono: 'FaGamepad', slug: 'videojuegos', description: 'Ofertas en juegos y consolas.' }
+];
+
+const tiendas = [
+  { id: 'amazon', nombre: 'Amazon', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', website: 'https://www.amazon.es', rating: 4.5, totalOfertas: 120 },
+  { id: 'elcorteingles', nombre: 'El Corte Inglés', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/El_Corte_Ingl%C3%A9s_Logo.svg/1200px-El_Corte_Ingl%C3%A9s_Logo.svg.png', website: 'https://www.elcorteingles.es', rating: 4.2, totalOfertas: 85 },
+  { id: 'pccomponentes', nombre: 'PcComponentes', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/PcComponentes_logo.svg/1200px-PcComponentes_logo.svg.png', website: 'https://www.pccomponentes.com', rating: 4.7, totalOfertas: 200 }
+];
+
+const ofertas = [
+  {
+    id: 'oferta-iphone-15',
+    titulo: 'Oferta Especial: iPhone 15 Pro Max 256GB Titanio',
+    slug: 'oferta-iphone-15-pro-max-titanio',
+    productoId: 'iphone-15-pro-max-titanio',
+    tiendaId: 'amazon',
+    precio_original: 1499,
+    precio_oferta: 1399,
+    fecha_inicio: new Date('2024-05-15T00:00:00Z').toISOString(),
+    fecha_fin: new Date('2024-06-15T23:59:59Z').toISOString(),
+    descripcion: 'Descuento exclusivo en el nuevo iPhone 15 Pro Max. Unidades limitadas.',
+    link_oferta: 'https://www.amazon.es/dp/example_iphone15',
+    categoriaId: 'electronica',
+    tags: ['smartphone', 'apple', 'tecnologia', 'iphone15'],
+    imageUrl: 'https://www.apple.com/newsroom/images/2023/09/apple-unveils-iphone-15-pro-and-iphone-15-pro-max/article/Apple-iPhone-15-Pro-lineup-hero-230912_inline.jpg.large.jpg',
+    likes: 250,
+    dislikes: 10,
+    commentsCount: 45,
+    isHot: true,
+    postedBy: 'user1',
+    createdAt: new Date('2024-05-15T08:00:00Z').toISOString(),
+    updatedAt: new Date('2024-05-20T10:00:00Z').toISOString(),
+    clicks: 1250,
+    discountPercentage: Math.round(((1499 - 1399) / 1499) * 100),
+    rating: 4.8,
+    stock: 50,
+    shippingInfo: 'Envío gratis en 24/48h',
+    couponCode: 'IPHONE100OFF',
+    userVotes: { 'user1': 1, 'user2': 1 },
+    approved: true,
+    communityScore: 240,
+    dealType: 'Descuento Directo',
+    availability: 'Disponible',
+    region: 'ES',
+    source: 'Web Oficial Amazon'
+  },
+  {
+    id: 'oferta-macbook-air-m3',
+    titulo: 'MacBook Air M3 13.6" 8GB RAM 256GB SSD - Ahorra 150€',
+    slug: 'oferta-macbook-air-m3',
+    productoId: 'macbook-air-m3',
+    tiendaId: 'pccomponentes',
+    precio_original: 1299,
+    precio_oferta: 1149,
+    fecha_inicio: new Date('2024-05-10T00:00:00Z').toISOString(),
+    fecha_fin: new Date('2024-06-10T23:59:59Z').toISOString(),
+    descripcion: 'El nuevo MacBook Air con chip M3 a un precio increíble. Perfecto para estudiantes y profesionales.',
+    link_oferta: 'https://www.pccomponentes.com/apple-macbook-air-m3-13-6-8gb-256gb-ssd-gris-espacial',
+    categoriaId: 'electronica',
+    tags: ['portatil', 'apple', 'macbook', 'm3', 'oferta'],
+    imageUrl: 'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/macbook-air-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1707414202086',
+    likes: 180,
+    dislikes: 5,
+    commentsCount: 30,
+    isHot: true,
+    postedBy: 'user2',
+    createdAt: new Date('2024-05-10T09:30:00Z').toISOString(),
+    updatedAt: new Date('2024-05-18T11:00:00Z').toISOString(),
+    clicks: 980,
+    discountPercentage: Math.round(((1299 - 1149) / 1299) * 100),
+    rating: 4.9,
+    stock: 30,
+    shippingInfo: 'Envío rápido',
+    couponCode: null,
+    userVotes: { 'user1': 1 },
+    approved: true,
+    communityScore: 175,
+    dealType: 'Descuento Directo',
+    availability: 'Disponible',
+    region: 'ES',
+    source: 'PcComponentes'
+  }
+];
+
+// Utilidades
+export const generateId = () => generateUUID();
+export const simulateDelay = async (min = 300, max = 800) => {
+  return new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
+};
+
+// Especificaciones técnicas de productos
+export const especificacionesProductos = {
+  'iphone-15-pro-max-titanio': {
+    especificaciones: {
+      pantalla: '6.7" Super Retina XDR OLED',
+      procesador: 'A17 Pro',
+      ram: '8GB',
+      almacenamiento: '256GB',
+      camara_principal: '48MP + 12MP + 12MP',
+      camara_frontal: '12MP TrueDepth',
+      bateria: '4422 mAh',
+      sistema_operativo: 'iOS 17',
+      dimensiones: '159.9 x 76.7 x 8.25 mm',
+      peso: '221 g'
+    },
+    caracteristicas_destacadas: [
+      'Titanio de grado aeroespacial',
+      'Chip A17 Pro con GPU de 6 núcleos',
+      'ProRAW y grabación ProRes',
+      'Action Button personalizable'
+    ],
+    contenido_caja: [
+      'iPhone 15 Pro Max',
+      'Cable USB-C a USB-C',
+      'Documentación',
+      'Pin expulsión SIM'
+    ],
+    descripcion_detallada: 'El iPhone 15 Pro Max representa lo último en innovación de Apple. Construido con titanio de grado aeroespacial, ofrece la mejor relación resistencia-peso en un iPhone. Su sistema de cámaras Pro permite capturar fotos en 48MP con un nivel de detalle extraordinario y zoom óptico 5x. El nuevo chip A17 Pro ofrece un rendimiento sin precedentes en juegos y aplicaciones profesionales.'
+  },
+  'macbook-air-m3': {
+    especificaciones: {
+      pantalla: '13.6" Liquid Retina',
+      procesador: 'Apple M3',
+      ram: '8GB RAM unificada',
+      almacenamiento: '256GB SSD',
+      graficos: 'GPU 8 núcleos',
+      bateria: 'Hasta 18 horas',
+      puertos: '2x Thunderbolt/USB 4',
+      wifi: 'Wi-Fi 6E',
+      dimensiones: '30.41 x 21.5 x 1.13 cm',
+      peso: '1.24 kg'
+    },
+    caracteristicas_destacadas: [
+      'Chip M3 con 8 núcleos CPU y 8 núcleos GPU',
+      'Diseño ultraligero de aluminio',
+      'Sistema de sonido de cuatro altavoces',
+      'Magic Keyboard con Touch ID'
+    ],
+    contenido_caja: [
+      'MacBook Air M3',
+      'Adaptador de corriente de 35W',
+      'Cable USB-C a MagSafe',
+      'Documentación'
+    ],
+    descripcion_detallada: 'El MacBook Air con chip M3 es el portátil ultraligero más potente de Apple. Su extraordinaria eficiencia energética permite hasta 18 horas de uso con una sola carga, mientras que la pantalla Liquid Retina muestra colores vibrantes y texto nítido. El rendimiento del chip M3 ofrece una experiencia fluida y rápida para cualquier tarea, desde edición de fotos hasta programación o navegación web con múltiples pestañas.'
+  },
+  'samsung-s24-ultra': {
+    especificaciones: {
+      pantalla: '6.8" Dynamic AMOLED 2X',
+      procesador: 'Snapdragon 8 Gen 3',
+      ram: '12GB',
+      almacenamiento: '512GB',
+      camara_principal: '200MP + 12MP + 10MP + 50MP',
+      camara_frontal: '12MP',
+      bateria: '5000 mAh',
+      sistema_operativo: 'Android 14 + One UI 6.1',
+      dimensiones: '162.3 x 79 x 8.6 mm',
+      peso: '232 g'
+    },
+    caracteristicas_destacadas: [
+      'Galaxy AI con traducción en tiempo real',
+      'S Pen incluido con latencia de 2.8ms',
+      'Zoom óptico 5x y Space Zoom 100x',
+      'Carcasa de titanio resistente'
+    ],
+    contenido_caja: [
+      'Samsung Galaxy S24 Ultra',
+      'Cable USB-C a USB-C',
+      'S Pen',
+      'Herramienta de expulsión de SIM',
+      'Guía rápida'
+    ],
+    descripcion_detallada: 'El Samsung Galaxy S24 Ultra representa la cumbre de la innovación en smartphones Android. Su cámara de 200MP captura detalles asombrosos en cualquier condición de iluminación, mientras que el zoom óptico 5x te acerca a la acción sin perder calidad. Galaxy AI transforma la experiencia del usuario con funciones como traducción en tiempo real, resumen de notas y edición generativa de imágenes. La pantalla Dynamic AMOLED 2X de 120Hz ofrece colores brillantes y un contraste excepcional, y el S Pen integrado permite tomar notas, dibujar y controlar el dispositivo con precisión.'
+  },
+  'google-pixel-8-pro': {
+    especificaciones: {
+      pantalla: '6.7" Super Actua LTPO OLED',
+      procesador: 'Google Tensor G3',
+      ram: '12GB',
+      almacenamiento: '256GB',
+      camara_principal: '50MP + 48MP + 48MP',
+      camara_frontal: '10.5MP',
+      bateria: '5050 mAh',
+      sistema_operativo: 'Android 14',
+      dimensiones: '162.6 x 76.5 x 8.8 mm',
+      peso: '213 g'
+    },
+    caracteristicas_destacadas: [
+      '7 años de actualizaciones',
+      'Cámara con Night Sight mejorado',
+      'Pantalla Super Actua de alta luminosidad',
+      'Tensor G3 con IA avanzada'
+    ],
+    contenido_caja: [
+      'Google Pixel 8 Pro',
+      'Cable USB-C a USB-C',
+      'Adaptador USB-C a USB-A',
+      'Herramienta de expulsión de SIM',
+      'Documentación'
+    ],
+    descripcion_detallada: 'El Google Pixel 8 Pro ofrece la experiencia Android más pura, potenciada por las últimas innovaciones en inteligencia artificial de Google. Su sistema de cámaras captura imágenes impresionantes en cualquier condición de luz, con funciones exclusivas como Magic Eraser y Best Take. Es el primer teléfono con 7 años garantizados de actualizaciones de sistema operativo y seguridad, lo que asegura una larga vida útil. El chip Tensor G3 diseñado por Google proporciona un rendimiento excepcional en tareas de IA y procesamiento de imágenes.'
+  },
+  'sony-alpha-a7-iv': {
+    especificaciones: {
+      sensor: '33MP Exmor R CMOS full-frame',
+      procesador: 'BIONZ XR',
+      iso: '100-51200 (expandible 50-204800)',
+      estabilizacion: '5.5 pasos, 5 ejes',
+      video: '4K/60p y Full HD/120p',
+      enfoque: '759 puntos AF de detección de fase',
+      pantalla: '3.0" LCD táctil articulada',
+      visor: 'OLED de 3.68M puntos',
+      conectividad: 'Wi-Fi, Bluetooth, USB-C',
+      autonomia: 'Aprox. 580 fotos'
+    },
+    caracteristicas_destacadas: [
+      'Sensor BSI CMOS de última generación',
+      'Seguimiento en tiempo real con IA',
+      'Grabación 10-bit 4:2:2 interna',
+      'Ranura para tarjetas CFexpress Type A y SD'
+    ],
+    contenido_caja: [
+      'Cámara Sony Alpha A7 IV',
+      'Objetivo 28-70mm f/3.5-5.6 OSS',
+      'Batería NP-FZ100',
+      'Cargador',
+      'Correa',
+      'Tapa de cuerpo y objetivo'
+    ],
+    descripcion_detallada: 'La Sony Alpha A7 IV representa un salto significativo en la serie A7, con un nuevo sensor de 33MP que ofrece un equilibrio perfecto entre resolución, rango dinámico y rendimiento ISO. Su sistema AF mejorado con seguimiento en tiempo real proporciona un enfoque preciso para sujetos en movimiento, incluso en condiciones difíciles. Para videógrafos, ofrece grabación 4K/60p con muestreo de 7K y capacidades avanzadas de log y LUTs integrados. La conectividad mejorada facilita el flujo de trabajo profesional, permitiendo transmisiones en vivo y transferencia rápida de archivos.'
+  },
+  'lg-ultragear-32-4k': {
+    especificaciones: {
+      panel: 'Nano IPS 32"',
+      resolucion: '3840 x 2160 (4K UHD)',
+      refresco: '144Hz',
+      tiempo_respuesta: '1ms (GtG)',
+      hdr: 'VESA DisplayHDR 600',
+      relacion_aspecto: '16:9',
+      brillo: '600 cd/m²',
+      contraste: '1000:1',
+      conexiones: '2x HDMI 2.1, 1x DisplayPort 1.4',
+      ergonomia: 'Ajuste de altura, inclinación, giro y rotación'
+    },
+    caracteristicas_destacadas: [
+      'Compatible con G-Sync y AMD FreeSync Premium Pro',
+      'DCI-P3 98% para colores precisos',
+      'Retroiluminación local para mejor contraste',
+      'Modo de baja latencia para gaming competitivo'
+    ],
+    contenido_caja: [
+      'Monitor LG UltraGear 32" 4K',
+      'Cable DisplayPort',
+      'Cable HDMI',
+      'Cable de alimentación',
+      'Soporte y base'
+    ],
+    descripcion_detallada: 'El monitor LG UltraGear 32" 4K está diseñado para ofrecer una experiencia de juego inmersiva con una calidad de imagen superior. Su panel Nano IPS proporciona colores vibrantes y precisos junto con ángulos de visión amplios. La combinación de 4K y 144Hz permite disfrutar tanto de gráficos nítidos como de acción fluida, mientras que la compatibilidad con G-Sync y FreeSync elimina el desgarro de pantalla. Con un tiempo de respuesta de 1ms, reduce el desenfoque de movimiento para una experiencia de juego más nítida incluso en títulos de alta velocidad.'
+  },
+  'apple-airpods-pro-2': {
+    especificaciones: {
+      chip: 'H2',
+      cancelacion_ruido: 'Cancelación activa de ruido avanzada',
+      audio: 'Audio espacial personalizado con seguimiento dinámico de cabeza',
+      resistencia: 'IP54 (resistente al sudor y agua)',
+      autonomia: 'Hasta 6 horas (hasta 30h con estuche)',
+      carga: 'MagSafe, USB-C, Qi',
+      controles: 'Sensores táctiles con control por presión',
+      microfono: 'Beamforming con filtrado de ruido',
+      peso: '5.3g (por auricular)'
+    },
+    caracteristicas_destacadas: [
+      'Cancelación de ruido 2x más efectiva que la generación anterior',
+      'Modo Transparencia Adaptativa que ajusta el sonido ambiental',
+      'Ecualización Adaptativa que optimiza el audio en tiempo real',
+      'Localización precisa con Find My'
+    ],
+    contenido_caja: [
+      'AirPods Pro (2ª generación)',
+      'Estuche de carga MagSafe con USB-C',
+      'Puntas de silicona (XS, S, M, L)',
+      'Cable USB-C a USB-C',
+      'Documentación'
+    ],
+    descripcion_detallada: 'Los AirPods Pro de 2ª generación ofrecen una experiencia auditiva sin precedentes en un formato compacto. La cancelación activa de ruido mejorada elimina hasta el doble de ruido externo, mientras que el modo Transparencia Adaptativa permite escuchar el entorno de forma natural. El chip H2 potencia nuevas funciones como Audio Adaptativo, que combina dinámicamente cancelación de ruido y transparencia según el entorno, y Conversación Consciente, que detecta cuando hablas y reduce la música. La calidad de sonido se ha mejorado con bajos más profundos y agudos más nítidos, mientras que el nuevo estuche con USB-C añade comodidad y compatibilidad con el ecosistema moderno.'
+  },
+  'nike-air-jordan-1': {
+    especificaciones: {
+      material_exterior: 'Cuero premium y nobuk',
+      material_interior: 'Textil transpirable',
+      suela: 'Goma con patrón de tracción',
+      cierre: 'Cordones tradicionales',
+      amortiguacion: 'Unidad Air en talón',
+      altura_caña: 'Alta (High)',
+      peso: 'Aproximadamente 425g (talla 42)',
+      origen: 'Fabricado en Vietnam/China',
+      referencia: 'CV3097-001'
+    },
+    caracteristicas_destacadas: [
+      'Colaboración exclusiva con Travis Scott',
+      'Detalles en ante premium',
+      'Logo Swoosh invertido característico',
+                          'Bolsillo oculto en el tobillo'
+    ],
+    guia_tallas: {
+      '38': '24 cm',
+      '39': '25 cm',
+      '40': '25.5 cm',
+      '41': '26 cm',
+      '42': '26.5 cm',
+      '43': '27.5 cm',
+      '44': '28 cm',
+      '45': '29 cm'
+    },
+    descripcion_detallada: 'Las Air Jordan 1 Retro High OG representan la historia viva del baloncesto y la cultura sneaker. Este modelo icónico, lanzado originalmente en 1985, ha sido reinterpretado en esta exclusiva colaboración con Travis Scott, añadiendo elementos únicos como el logo Swoosh invertido y un bolsillo secreto en el área del tobillo. Construidas con materiales premium, estas zapatillas combinan la estética retro con detalles modernos. La unidad Air en el talón ofrece la amortiguación clásica, mientras que la suela de goma proporciona tracción y durabilidad. Un auténtico objeto de colección que fusiona historia deportiva y cultura urbana contemporánea.'
+  },
+  'abrigo-lana-oversize-zara': {
+    especificaciones: {
+      material_exterior: '80% lana, 20% poliamida',
+      material_forro: '100% poliéster',
+      cuidados: 'Lavado en seco',
+      cierre: 'Botones frontales',
+      bolsillos: 'Laterales y uno interior',
+      largo: 'Por debajo de la rodilla',
+      fit: 'Oversize',
+      colores: ['Negro', 'Camel', 'Gris']
+    },
+    caracteristicas_destacadas: [
+      'Diseño oversize moderno',
+      'Lana premium italiana',
+      'Acabados de alta calidad',
+      'Forro interior completo'
+    ],
+    guia_tallas: {
+      XS: ['36', '34 EU'],
+      S: ['38', '36 EU'],
+      M: ['40', '38 EU'],
+      L: ['42', '40 EU'],
+      XL: ['44', '42 EU']
+    },
+    descripcion_detallada: 'Este abrigo de lana oversize de Zara representa la perfecta combinación entre elegancia y comodidad. Confeccionado con lana italiana de alta calidad, ofrece un excelente aislamiento térmico sin sacrificar el estilo. Su corte oversize actual permite llevar prendas gruesas debajo, mientras que los acabados premium y el forro completo garantizan durabilidad y confort.'
+  },
+  'adidas-ultraboost-24': {
+    especificaciones: {
+      material_exterior: 'Primeknit+ 360° adaptativo',
+      material_suela: 'Continental™ Rubber + Stretchweb',
+      entresuela: 'Boost con 20% más de retorno de energía',
+      peso: '310 g (talla 42)',
+      drop: '10 mm',
+      tipo_pisada: 'Neutra',
+      soporte: 'Adidas LEP 2.0 System',
+      amortiguacion: 'Boost, máxima amortiguación',
+      ajuste: 'Normal a estrecho'
+    },
+    caracteristicas_destacadas: [
+      'Material Primeknit+ con adaptación 4D',
+      'Tecnología Boost para máximo retorno de energía',
+      'Sistema Linear Energy Push para mejorar la propulsión',
+      'Suela Continental™ para máximo agarre en todas las condiciones'
+    ],
+    guia_tallas: {
+      '40': '25.5 cm',
+      '40 2/3': '26 cm',
+      '41 1/3': '26.5 cm',
+      '42': '27 cm',
+      '42 2/3': '27.5 cm',
+      '43 1/3': '28 cm',
+      '44': '28.5 cm'
+    },
+    descripcion_detallada: 'Las nuevas Ultraboost 24 representan la última evolución de las zapatillas running de Adidas. La tecnología Boost en la mediasuela ofrece un 20% más de retorno de energía que los modelos anteriores, proporcionando una amortiguación superior y una sensación de propulsión en cada zancada. El upper Primeknit+ se adapta a la forma del pie como un calcetín, ofreciendo sujeción donde se necesita y libertad donde se desea. La suela Continental™ desarrollada en colaboración con la marca de neumáticos garantiza un agarre excepcional en cualquier superficie, incluso en mojado. El sistema LEP 2.0 (Linear Energy Push) mejora la estabilidad y la transición talón-punta para una carrera más eficiente.'
+  },
+  'samsung-neo-qled-65': {
+    especificaciones: {
+      panel: 'Neo QLED 4K (Mini LED)',
+      resolucion: '3840 x 2160 px',
+      hdr: 'HDR10+, HLG, Quantum HDR 2000',
+      procesador: 'NQ4 AI Gen2',
+      refresco: '144Hz',
+      puertos: '4x HDMI 2.1, 2x USB, LAN, Wi-Fi 6E',
+      sistema: 'Tizen OS 2024',
+      sonido: '2.2.2 canales, 40W, Dolby Atmos, Q-Symphony',
+      dimensiones: '1446 x 829 x 254 mm (con peana)',
+      peso: '21.8 kg (con peana)'
+    },
+    caracteristicas_destacadas: [
+      'Tecnología Mini LED con local dimming',
+      'Procesador NQ4 AI con upscaling neuronal',
+      'Gaming Hub con soporte para Cloud Gaming',
+      'Modo Filmmaker certificado por la UHD Alliance'
+    ],
+    contenido_caja: [
+      'TV Neo QLED 65"',
+      'Mando a distancia solar',
+      'Cable de alimentación',
+      'Guía de instalación rápida',
+      'One Connect Mini'
+    ],
+    descripcion_detallada: 'El Samsung Neo QLED de 65 pulgadas representa la vanguardia en tecnología de visualización. La combinación de Mini LED, tecnología Quantum Dot y el procesador NQ4 AI ofrece imágenes de un realismo extraordinario, con negros profundos, colores vibrantes y un brillo espectacular. La frecuencia de 144Hz y el soporte para VRR (Variable Refresh Rate) lo convierten en el televisor ideal para gaming, mientras que su sistema de sonido Object Tracking Sound+ crea una experiencia de audio inmersiva que sigue la acción en pantalla. El sistema operativo Tizen 2024 proporciona acceso a más de 200 canales gratuitos a través de Samsung TV Plus, además de todas las plataformas de streaming populares con una interfaz intuitiva y personalizable.'
+  },
+  'lg-oled-evo-g4': {
+    especificaciones: {
+      panel: 'OLED evo con brillo aumentado',
+      resolucion: '3840 x 2160 px (4K UHD)',
+      procesador: 'α11 AI con deep learning',
+      hdr: 'Dolby Vision, HDR10, HLG',
+      refresco: '144Hz VRR',
+      conectividad: '4x HDMI 2.1, 3x USB, Wi-Fi 6, Bluetooth',
+      sistema: 'webOS 24',
+      sonido: 'AI Sound Pro 4.2 canales 60W',
+      gaming: 'G-Sync, FreeSync Premium, ALLM, VRR',
+      dimensiones: '1225 x 708 x 41.9 mm (sin peana)'
+    },
+    caracteristicas_destacadas: [
+      'Panel OLED evo con Brightness Booster Max (+30% brillo)',
+      'Procesador α11 con IA generativa integrada',
+      'Conectividad HDMI 2.1 en todas las conexiones',
+      'Modo Filmmaker certificado y modo de calibración profesional'
+    ],
+    contenido_caja: [
+      'TV LG OLED evo G4 55"',
+      'Mando Magic Remote 2024',
+      'Soporte de pared exclusivo',
+      'Cable de alimentación',
+      'Guía de inicio rápido'
+    ],
+    descripcion_detallada: 'El LG OLED evo G4 representa la quinta generación de la serie Gallery de LG, con un diseño ultradelgado pensado para montaje en pared como una obra de arte. El nuevo panel OLED evo con tecnología Brightness Booster Max ofrece un 30% más de brillo que los modelos anteriores, manteniendo los negros perfectos y el contraste infinito característicos de OLED. El corazón de este televisor es el procesador α11, que utiliza redes neuronales profundas para mejorar tanto la imagen como el sonido, incluyendo funciones de IA generativa como upscaling, reducción de ruido y optimización de escenas. Para los amantes del cine, incluye modo Filmmaker, mientras que los gamers disfrutarán de 4 puertos HDMI 2.1 con soporte para 4K/144Hz, VRR y latencia ultrabaja gracias al Game Optimizer.'
+  },
+  'ps5-slim-spiderman2': {
+    especificaciones: {
+      procesador: 'AMD Zen 2 (8 núcleos a 3.5GHz)',
+      gpu: 'AMD RDNA 2 (10.3 TFLOPS)',
+      memoria: '16GB GDDR6',
+      almacenamiento: 'SSD 1TB personalizado',
+      resolucion: '4K hasta 120Hz, 8K a 60Hz',
+      conectividad: 'Wi-Fi 6, Bluetooth 5.1, USB-A, USB-C',
+      audio: 'Tempest 3D AudioTech',
+      consumo: '185W (aprox.)',
+      dimensiones: '358 x 96 x 216 mm',
+      peso: '3.9 kg'
+    },
+    caracteristicas_destacadas: [
+      'Diseño más compacto que la PS5 original',
+      'Tapa de unidad de disco extraíble',
+      'Almacenamiento ampliable mediante SSD M.2',
+      'Marvel Spider-Man 2 incluido (versión digital)'
+    ],
+    contenido_caja: [
+      'Consola PlayStation 5 Slim',
+      'Mando DualSense',
+      'Cable HDMI',
+      'Cable de alimentación',
+      'Cable USB-C',
+      'Código de descarga Spider-Man 2'
+    ],
+    descripcion_detallada: 'La PlayStation 5 Slim representa una evolución en el diseño de la consola insignia de Sony, ofreciendo todas las capacidades de la PS5 original en un factor de forma más compacto y eficiente. Su revolucionario SSD personalizado elimina prácticamente los tiempos de carga, mientras que la arquitectura RDNA 2 permite experiencias de juego con trazado de rayos en tiempo real y resolución 4K. Este pack incluye el aclamado Marvel Spider-Man 2, la secuela del exitoso juego de Insomniac Games, que aprovecha al máximo las capacidades de la consola con gráficos espectaculares y tiempos de carga instantáneos. El mando DualSense complementa la experiencia con retroalimentación háptica avanzada y gatillos adaptables que responden de forma única a cada juego.'
+  },
+  'nintendo-switch-oled-mario': {
+    especificaciones: {
+      pantalla: 'OLED 7" (1280 x 720p)',
+      procesador: 'NVIDIA Custom Tegra',
+      memoria: '4GB RAM',
+      almacenamiento: '64GB ampliable con microSD',
+      bateria: '4310 mAh (4.5-9h de juego)',
+      conectividad: 'Wi-Fi, Bluetooth 4.1, USB-C',
+      salida_video: 'Hasta 1080p en modo TV',
+      audio: 'Altavoces estéreo mejorados',
+      dimensiones: '242 x 102 x 13.9 mm',
+      peso: '420g (con Joy-Con)'
+    },
+    caracteristicas_destacadas: [
+      'Pantalla OLED con colores más vibrantes',
+      'Soporte ajustable más ancho y estable',
+      'Puerto LAN integrado en la base',
+      'Almacenamiento interno duplicado (64GB)'
+    ],
+    contenido_caja: [
+      'Consola Nintendo Switch modelo OLED',
+      'Base para TV con puerto LAN',
+      'Joy-Con izquierdo y derecho',
+      'Soporte para Joy-Con',
+      'Cable HDMI',
+      'Adaptador de corriente',
+      'Juego Mario Kart 8 Deluxe (código digital)',
+      'Código para 3 meses de Nintendo Switch Online'
+    ],
+    descripcion_detallada: 'La Nintendo Switch OLED representa la evolución definitiva de la consola híbrida de Nintendo. Su pantalla OLED de 7 pulgadas ofrece colores más vivos, negros más intensos y un mayor contraste que el modelo original, mejorando significativamente la experiencia en modo portátil. Este pack incluye el exitoso Mario Kart 8 Deluxe, la versión definitiva del juego de carreras de Nintendo con 48 circuitos y todos los personajes desbloqueados, así como una suscripción de 3 meses a Nintendo Switch Online para disfrutar de partidas multijugador, guardado en la nube y acceso a un catálogo de juegos clásicos de NES, SNES, Game Boy y otros sistemas retro.'
+  },
+  'cosori-freidora-aire': {
+    especificaciones: {
+      capacidad: '6.4 litros (para 3-6 personas)',
+      potencia: '1700W',
+      temperatura: '75°C - 230°C',
+      temporizador: 'Hasta 60 minutos',
+      programas: '13 funciones preestablecidas',
+      conectividad: 'WiFi + app VeSync',
+      pantalla: 'LED táctil',
+      dimensiones: '32.7 x 30.2 x 32.8 cm',
+      peso: '5.4 kg',
+      material: 'Acero inoxidable y plástico libre de BPA'
+    },
+    caracteristicas_destacadas: [
+      'Sistema de circulación de aire 360°',
+      'Control por voz (Alexa y Google Assistant)',
+      'Recordatorios de agitado de alimentos',
+      'Recetas personalizables desde la app'
+    ],
+    contenido_caja: [
+      'Freidora de aire Cosori 6.4L',
+      'Cesta con revestimiento antiadherente',
+      'Rejilla para elevación de alimentos',
+      'Manual de instrucciones',
+      'Libro con 100 recetas'
+    ],
+    descripcion_detallada: 'La freidora de aire Cosori de 6.4 litros reinventa la forma de cocinar en casa, ofreciendo platos crujientes y deliciosos con hasta un 85% menos de aceite que la fritura tradicional. Su gran capacidad permite preparar comidas completas para toda la familia, mientras que sus 13 programas preestablecidos facilitan la preparación de todo tipo de alimentos con solo pulsar un botón. La conectividad WiFi y la integración con la app VeSync permiten controlar la cocción desde el móvil, recibir notificaciones cuando la comida está lista, y acceder a cientos de recetas exclusivas. Su diseño elegante en acero inoxidable complementa cualquier cocina moderna, mientras que su potencia de 1700W garantiza un calentamiento rápido y uniforme para resultados profesionales en casa.'
+  }
+];
+
+// ================================================================================================
+// MOCK DATA INITIALIZATION
+// ================================================================================================
+export const mockData = {
+  users,
+  categorias,
+  tiendas,
+  ofertas,
+
+  // Forum Data
+  forumCategories: [
+    {
+      id: generateUUID(),
+      name: 'Discusión General',
+      description: 'Un lugar para hablar de todo lo relacionado con ofertas y compras.',
+      icon: 'FaComments', // Example icon name
+      threadCount: 2,
+      postCount: 3,
+      createdAt: new Date('2024-04-01T10:00:00Z'),
+      updatedAt: new Date('2024-05-20T12:00:00Z'),
+    },
+    {
+      id: generateUUID(),
+      name: 'Electrónica',
+      description: 'Debates sobre las últimas ofertas en gadgets, móviles, ordenadores, etc.',
+      icon: 'FaLaptop',
+      threadCount: 1,
+      postCount: 2,
+      createdAt: new Date('2024-04-05T14:30:00Z'),
+      updatedAt: new Date('2024-05-15T16:45:00Z'),
+    },
+    {
+      id: generateUUID(),
+      name: 'Moda y Accesorios',
+      description: 'Encuentra y comparte ofertas en ropa, calzado y complementos.',
+      icon: 'FaTshirt',
+      threadCount: 0,
+      postCount: 0,
+      createdAt: new Date('2024-04-10T09:00:00Z'),
+      updatedAt: new Date('2024-04-10T09:00:00Z'),
+    }
+  ],
+  forumThreads: [],
+  forumPosts: [],
+  forumVotes: [],
+};
+
+// Sample Forum Threads
+const generalCategoryId = mockData.forumCategories.find(c => c.name === 'Discusión General')?.id;
+const electronicsCategoryId = mockData.forumCategories.find(c => c.name === 'Electrónica')?.id;
+
+if (generalCategoryId) {
+  mockData.forumThreads.push(
+    {
+      id: generateUUID(),
+      categoryId: generalCategoryId,
+      userId: 'user-2', // Admin user (Carlos Rodríguez)
+      title: '¡Bienvenidos al nuevo foro de la comunidad CazaOfertas!',
+      content: 'Este es el primer hilo de nuestro foro. ¡Esperamos que lo disfrutéis y compartáis muchas ofertas y consejos! Queremos que este sea un espacio para todos.',
+      tags: ['bienvenida', 'comunidad', 'foro'],
+      viewCount: 150,
+      replyCount: 0, // Will be updated by posts
+      voteScore: 0,  // Will be updated by votes
+      isPinned: true,
+      isLocked: false,
+      createdAt: new Date('2024-05-01T12:00:00Z'),
+      updatedAt: new Date('2024-05-20T10:00:00Z'),
+      lastActivityAt: new Date('2024-05-20T10:00:00Z'),
+      productId: null,
+    },
+    {
+      id: generateUUID(),
+      categoryId: generalCategoryId,
+      userId: 'user-1', // María García
+      title: '¿Cuál ha sido vuestra mejor caza de oferta este mes?',
+      content: 'Me gustaría saber qué gangas habéis encontrado últimamente. ¡Compartid vuestros tesoros!',
+      tags: ['ofertas', 'experiencias', 'compras'],
+      viewCount: 75,
+      replyCount: 0, // Will be updated by posts
+      voteScore: 0,  // Will be updated by votes
+      isPinned: false,
+      isLocked: false,
+      createdAt: new Date('2024-05-10T15:30:00Z'),
+      updatedAt: new Date('2024-05-19T18:20:00Z'),
+      lastActivityAt: new Date('2024-05-19T18:20:00Z'),
+      productId: null,
+    }
+  );
+}
+
+if (electronicsCategoryId && mockData.ofertas && mockData.ofertas.length > 0) {
+  const firstProduct = mockData.ofertas[0];
+  const productStore = mockData.tiendas.find(s => s.id === firstProduct.tiendaId)?.nombre || 'Tienda Desconocida';
+  const productCategoryName = mockData.categorias.find(c => c.id === firstProduct.categoriaId)?.nombre.toLowerCase() || 'desconocida';
+
+  mockData.forumThreads.push(
+    {
+      id: generateUUID(),
+      categoryId: electronicsCategoryId,
+      userId: 'user-3', // Laura Martínez
+      title: `Discusión sobre el producto: ${firstProduct.titulo}`,
+      content: `¿Alguien más ha comprado ${firstProduct.titulo}? Me gustaría saber opiniones antes de decidirme. Parece una buena oferta la que hay en ${productStore}.`,
+      tags: ['opiniones', 'electronica', productCategoryName],
+      viewCount: 90,
+      replyCount: 0, // Will be updated by posts
+      voteScore: 0,  // Will be updated by votes
+      isPinned: false,
+      isLocked: false,
+      createdAt: new Date('2024-05-12T10:00:00Z'),
+      updatedAt: new Date('2024-05-21T09:30:00Z'),
+      lastActivityAt: new Date('2024-05-21T09:30:00Z'),
+      productId: firstProduct.id, // Link to the first product
+    }
+  );
+}
+
+// Sample Forum Posts (Replies)
+const thread1Id = mockData.forumThreads.find(t => t.title.includes('Bienvenidos'))?.id;
+const thread2Id = mockData.forumThreads.find(t => t.title.includes('mejor caza'))?.id;
+const thread3Id = mockData.forumThreads.find(t => t.title.includes('Discusión sobre el producto'))?.id;
+
+if (thread1Id) {
+  mockData.forumPosts.push({
+    id: generateUUID(),
+    threadId: thread1Id,
+    userId: '2', // Jane Doe
+    parentId: null, // Direct reply to thread
+    content: '¡Genial! Ya era hora de tener un foro. ¡Gracias!',
+    voteScore: 3,
+    createdAt: new Date('2024-05-01T14:00:00Z'),
+    updatedAt: new Date('2024-05-01T14:00:00Z'),
+  });
+}
+
+if (thread2Id) {
+  const post1Thread2 = {
+    id: generateUUID(),
+    threadId: thread2Id,
+    userId: '1', // Admin User
+    parentId: null,
+    content: 'Yo encontré unos auriculares con 70% de descuento. ¡Increíble!',
+    voteScore: 2,
+    createdAt: new Date('2024-05-11T10:20:00Z'),
+    updatedAt: new Date('2024-05-11T10:20:00Z'),
+  };
+  mockData.forumPosts.push(post1Thread2);
+  mockData.forumPosts.push({ // Nested reply
+    id: generateUUID(),
+    threadId: thread2Id,
+    userId: '3', // John Smith
+    parentId: post1Thread2.id,
+    content: '¡Wow! ¿Dónde fue eso?',
+    voteScore: 1,
+    createdAt: new Date('2024-05-11T11:00:00Z'),
+    updatedAt: new Date('2024-05-11T11:00:00Z'),
+  });
+}
+
+if (thread3Id) {
+   mockData.forumPosts.push({
+    id: generateUUID(),
+    threadId: thread3Id,
+    userId: '1',
+    parentId: null,
+    content: `Yo lo tengo y estoy bastante contento con la relación calidad-precio. La batería dura bastante y la pantalla se ve muy bien. Lo compré hace 2 semanas.`,
+    voteScore: 5,
+    createdAt: new Date('2024-05-13T11:00:00Z'),
+    updatedAt: new Date('2024-05-13T11:00:00Z'),
+  });
+   mockData.forumPosts.push({
+    id: generateUUID(),
+    threadId: thread3Id,
+    userId: '2',
+    parentId: null,
+    content: `Gracias por la info! Estaba dudando pero creo que me animaré. ¿Algún problema con el software o actualizaciones?`,
+    voteScore: 2,
+    createdAt: new Date('2024-05-14T09:15:00Z'),
+    updatedAt: new Date('2024-05-14T09:15:00Z'),
+  });
+}
+
+// Sample Forum Votes
+// User 1 upvotes thread 1
+if (thread1Id) {
+  mockData.forumVotes.push({
+    id: generateUUID(),
+    userId: '1',
+    targetId: thread1Id,
+    targetType: 'thread',
+    value: 1,
+    createdAt: new Date('2024-05-01T13:00:00Z'),
+  });
+}
+// User 2 upvotes post in thread 1
+const postInThread1 = mockData.forumPosts.find(p => p.threadId === thread1Id);
+if (postInThread1) {
+  mockData.forumVotes.push({
+    id: generateUUID(),
+    userId: '2',
+    targetId: postInThread1.id,
+    targetType: 'post',
+    value: 1,
+    createdAt: new Date('2024-05-01T14:05:00Z'),
+  });
+}
+// User 3 downvotes a post in thread 2 (example)
+const postInThread2 = mockData.forumPosts.find(p => p.threadId === thread2Id && p.parentId);
+if (postInThread2) {
+  mockData.forumVotes.push({
+    id: generateUUID(),
+    userId: '1', // Let's say Admin User downvoted John's question for some reason
+    targetId: postInThread2.id,
+    targetType: 'post',
+    value: -1, // Downvote
+    createdAt: new Date('2024-05-11T11:05:00Z'),
+  });
+}
+
+
+// Update counts in categories (simple sum for now, can be dynamic later)
+mockData.forumCategories.forEach(category => {
+  const threadsInCategory = mockData.forumThreads.filter(t => t.categoryId === category.id);
+  category.threadCount = threadsInCategory.length;
+  category.postCount = threadsInCategory.reduce((sum, thread) => {
+    return sum + mockData.forumPosts.filter(p => p.threadId === thread.id).length;
+  }, 0);
+  // Update lastActivityAt for category based on its threads
+  if (threadsInCategory.length > 0) {
+    category.updatedAt = new Date(Math.max(...threadsInCategory.map(t => new Date(t.lastActivityAt || t.updatedAt).getTime())));
+  }
+});
+
+// Update reply counts, vote scores, and lastActivityAt in threads
+mockData.forumThreads.forEach(thread => {
+  const postsInThread = mockData.forumPosts.filter(p => p.threadId === thread.id);
+  thread.replyCount = postsInThread.length;
+  thread.voteScore = mockData.forumVotes
+    .filter(v => v.targetId === thread.id && v.targetType === 'thread')
+    .reduce((sum, vote) => sum + vote.value, 0);
+  if (postsInThread.length > 0) {
+    thread.lastActivityAt = new Date(Math.max(...postsInThread.map(p => new Date(p.createdAt).getTime())));
+  } else {
+    thread.lastActivityAt = thread.createdAt; // Or updatedAt if no posts
+  }
+});
+
+// Update vote scores in posts
+mockData.forumPosts.forEach(post => {
+  post.voteScore = mockData.forumVotes
+    .filter(v => v.targetId === post.id && v.targetType === 'post')
+    .reduce((sum, vote) => sum + vote.value, 0);
+});
+
+// ================================================================================================
+// EXPORTS
+// ================================================================================================
+
+// Export the mockData object as the default export
+export default mockData;
+
+// Also export individual utility functions for direct access
+export { generateUUID };
+export { generateId, simulateDelay, especificacionesProductos };

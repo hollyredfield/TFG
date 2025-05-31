@@ -1,0 +1,259 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { FaStar, FaClock, FaStore, FaPercent, FaShoppingCart, FaCheck, FaGift } from 'react-icons/fa';
+import { useShoppingCart } from '../context/ShoppingCartContext';
+
+const OfferCard = ({ offer, viewMode = 'grid' }) => {
+  const { addToCart } = useShoppingCart();
+  const [isAdding, setIsAdding] = useState(false);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(price);
+  };
+  
+  const formatDate= (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    });
+  };
+  
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // Prevent navigation to offer detail
+    
+    // Set adding animation
+    setIsAdding(true);
+    
+    // Add to cart
+    addToCart({
+      id: offer.id,
+      title: offer.titulo,
+      price: offer.precio_actual,
+      originalPrice: offer.precio_original,
+      discountPercentage: offer.porcentaje_descuento,
+      image: offer.url_imagen,
+      store: offer.tienda,
+      url: offer.url || `/oferta/${offer.slug}`,
+      quantity: 1
+    });
+    
+    // Reset after animation completes
+    setTimeout(() => {
+      setIsAdding(false);
+    }, 1500);
+  };
+
+  const calculateDeliveryDate = () => {
+    const today = new Date();
+    const deliveryDate = new Date();
+    deliveryDate.setDate(today.getDate() + 2); // 2 días después
+    
+    const day = deliveryDate.getDate();
+    const month = deliveryDate.toLocaleString('es-ES', { month: 'long' });
+    
+    return `Recíbelo el martes, ${day} de ${month}`;
+  };
+
+  if (viewMode === 'list') {
+    // Vista de lista como en PC Componentes
+    return (
+      <Link
+        to={`/oferta/${offer.slug}`}
+        className="group flex bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-lg overflow-hidden"
+      >
+        {/* Imagen y descuento */}
+        <div className="relative w-1/4 p-2">
+          {offer.porcentaje_descuento > 0 && (
+            <div className="absolute left-1 top-1 z-10 bg-red-600 text-white text-xs font-bold rounded px-1.5 py-0.5">
+              -{offer.porcentaje_descuento}%
+            </div>
+          )}
+          <div className="relative aspect-square overflow-hidden bg-white">
+            <img
+              src={offer.url_imagen}
+              alt={offer.titulo}
+              loading="lazy"
+              onError={(e) => {
+                e.target.src = 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?q=80&w=1000';
+              }}
+              className="h-full w-full object-contain"
+            />
+          </div>
+        </div>
+
+        {/* Contenido */}
+        <div className="flex-1 p-3 flex flex-col">
+          <div className="flex items-center text-xs text-gray-500 mb-1">
+            <FaStore className="mr-1" />
+            <span>{offer.tienda}</span>
+          </div>
+          
+          <h3 className="font-semibold text-sm mb-2 line-clamp-2 group-hover:text-orange-500 transition-colors">
+            {offer.titulo}
+          </h3>
+          
+          <p className="text-xs text-gray-600 line-clamp-2 flex-grow mb-3">
+            {offer.descripcion}
+          </p>
+          
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-gray-900">
+                {formatPrice(offer.precio_actual)}
+              </span>
+              {offer.precio_original && (
+                <span className="text-xs text-gray-500 line-through">
+                  {formatPrice(offer.precio_original)}
+                </span>
+              )}
+            </div>
+            
+            <div className="flex-1 text-xs text-gray-600">
+              <div className="flex items-center mb-1">
+                <FaStar className="mr-1 text-yellow-400" />
+                <span>{offer.votos_positivos || 0} opiniones</span>
+              </div>
+              {offer.porcentaje_descuento > 20 && (
+                <div className="flex items-center text-green-600">
+                  <FaGift className="mr-1" />
+                  <span>Incluye regalo</span>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdding}
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                isAdding 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-orange-500 hover:bg-orange-600 text-white'
+              }`}
+            >
+              {isAdding ? (
+                <span>Añadido</span>
+              ) : (
+                <span>Añadir al carrito</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Vista de cuadrícula (vista por defecto)
+  return (
+    <Link
+      to={`/oferta/${offer.slug}`}
+      className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-md h-full"
+    >
+      {/* Imagen y descuento */}
+      <div className="relative p-4 flex items-center justify-center">
+        {offer.porcentaje_descuento > 0 && (
+          <div className="absolute left-2 top-2 z-10 bg-red-600 text-white text-xs font-bold rounded px-1.5 py-0.5">
+            -{offer.porcentaje_descuento}%
+          </div>
+        )}
+        {offer.porcentaje_descuento > 20 && (
+          <div className="absolute right-2 top-2 text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded-sm">
+            Incluye regalo
+          </div>
+        )}
+        <div className="w-full aspect-square overflow-hidden flex items-center justify-center">
+          <img
+            src={offer.url_imagen}
+            alt={offer.titulo}
+            loading="lazy"
+            onError={(e) => {
+              e.target.src = 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?q=80&w=1000';
+            }}
+            className="max-h-[180px] object-contain transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+      </div>
+
+      {/* Contenido */}
+      <div className="flex flex-grow flex-col p-4 border-t border-gray-100">
+        <div className="flex items-center text-xs text-gray-500 mb-1">
+          <FaStore className="mr-1" />
+          <span>{offer.tienda}</span>
+        </div>
+        
+        <h3 className="text-sm font-medium line-clamp-2 mb-3 group-hover:text-orange-500 transition-colors">
+          {offer.titulo}
+        </h3>
+        
+        <div className="flex items-baseline gap-2 mb-2">
+          <span className="text-xl font-bold text-gray-900">
+            {formatPrice(offer.precio_actual)}
+          </span>
+          {offer.precio_original && (
+            <span className="text-xs text-gray-500 line-through">
+              {formatPrice(offer.precio_original)}
+            </span>
+          )}
+        </div>
+        
+        <div className="flex items-center mb-3 text-xs">
+          <FaStar className="mr-1 text-yellow-400" />
+          <span className="text-gray-600">{offer.votos_positivos || 0} opiniones</span>
+        </div>
+        
+        <div className="text-xs text-green-600 mb-3">
+          <span>{calculateDeliveryDate()}</span>
+        </div>
+        
+        <div className="mt-auto">
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className={`w-full flex justify-center items-center py-2 px-4 rounded transition-colors ${
+              isAdding 
+                ? 'bg-green-600 text-white' 
+                : 'bg-orange-500 hover:bg-orange-600 text-white'
+            }`}
+          >
+            {isAdding ? (
+              <>
+                <FaCheck className="mr-2" />
+                Añadido
+              </>
+            ) : (
+              <>
+                <FaShoppingCart className="mr-2" />
+                Añadir al carrito
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+OfferCard.propTypes = {
+  offer: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    slug: PropTypes.string.isRequired,
+    titulo: PropTypes.string.isRequired,
+    descripcion: PropTypes.string.isRequired,
+    precio_actual: PropTypes.number.isRequired,
+    precio_original: PropTypes.number,
+    url_imagen: PropTypes.string.isRequired,
+    tienda: PropTypes.string.isRequired,
+    votos_positivos: PropTypes.number,
+    porcentaje_descuento: PropTypes.number,
+    creado_en: PropTypes.string.isRequired,
+    url: PropTypes.string
+  }).isRequired,
+  viewMode: PropTypes.oneOf(['grid', 'list'])
+};
+
+export default OfferCard;

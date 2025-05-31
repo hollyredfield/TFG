@@ -1,0 +1,171 @@
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import supabase from '../services/supabase';
+import AuthContext from './AuthContextInstance';
+
+console.log('AuthContext.jsx: Inicializando proveedor de autenticación');
+
+export function AuthProvider({ children }) {
+  console.log('AuthContext.jsx: Renderizando AuthProvider');
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
+  const [error, setError] = useState(null);
+  const lastEventRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  const handleAuthChange = useCallback(async (event, session) => {
+    const now = Date.now();
+    // Debounce events that occur in quick succession
+    if (lastEventRef.current && now - lastEventRef.current < 1000) {
+      console.log('[AuthContext] 🔄 Ignorando evento duplicado:', event);
+      return;
+    }
+    
+    lastEventRef.current = now;
+    console.log('[AuthContext] 📢 Evento de autenticación:', event);
+    
+    // Use setTimeout to prevent blocking the main thread
+    setTimeout(async () => {
+      try {
+        if (session?.user && mountedRef.current) {
+          setUser(session.user);
+          console.log('[AuthContext] ✅ Sesión actualizada para:', session.user.email);
+        
+          if ((!profile || profile.id !== session.user.id) && mountedRef.current) {
+            // En la versión simulada, el perfil del usuario es el mismo objeto de usuario
+            const profileData = {
+              id: session.user.id,
+              nombre_usuario: session.user.nombre || session.user.email.split('@')[0],
+              email: session.user.email,
+              avatar_url: session.user.avatar_url,
+              role: session.user.role || 'user'
+            };
+            
+            console.log('[AuthContext] 👤 Perfil actualizado:', profileData.nombre_usuario);
+            setProfile(profileData);
+            setError(null);
+          }
+        } else if (mountedRef.current) {
+          setUser(null);
+          setProfile(null);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('[AuthContext] ❌ Error inesperado:', err);
+        if (mountedRef.current) {
+          setError(err);
+        }
+      }
+    }, 0);
+  }, [profile]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    
+    const initAuth = async () => {
+      try {
+        console.log('[AuthContext] 🟡 Verificando sesión inicial...');
+        setLoading(true);
+
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (session?.user && mountedRef.current) {
+          console.log('[AuthContext] ✅ Sesión encontrada:', session.user.email);
+          await handleAuthChange('INITIAL_SESSION', session);
+        }
+        
+        supabase.auth.onAuthStateChange(handleAuthChange);
+
+      } catch (error) {
+        console.error('[AuthContext] 🔴 Error:', error);
+        if (mountedRef.current) {
+          setError(error);
+        }
+      } finally {
+        if (mountedRef.current) {
+          setLoading(false);
+          setInitialized(true);
+          console.log('[AuthContext] 🏁 Inicialización completada');
+        }
+      }
+    };
+
+    initAuth();
+    
+    return () => {
+      mountedRef.current = false;
+      console.log('[AuthContext] 🧹 Limpieza de contexto');
+    };
+  }, [handleAuthChange]);
+
+  const login = async (email, password) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (email, password, username) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            nombre: username
+          }
+        }
+      });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+      setProfile(null);
+    } catch (error) {
+      console.error('[AuthContext] 🔴 Error al cerrar sesión:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const value = useMemo(() => ({
+    user,
+    profile,
+    loading,
+    initialized,
+    error,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    setUser,
+    setProfile
+  }), [user, profile, loading, initialized, error]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}

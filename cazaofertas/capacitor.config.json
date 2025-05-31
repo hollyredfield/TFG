@@ -1,0 +1,24 @@
+{
+  "appId": "io.cazaofertas.app",
+  "appName": "CazaOfertas",
+  "webDir": "dist-temp",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#FFFFFF",
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true,
+    "initialFocus": true,
+    "hideLogs": false,
+    "allowNavigation": ["*"]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "backgroundColor": "#FFFFFF",
+      "androidScaleType": "CENTER_CROP"
+    }
+  }
+}

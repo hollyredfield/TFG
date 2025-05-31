@@ -1,0 +1,124 @@
+/* Modern color scheme */
+:root {
+  /* Primary colors */
+  --color-primary: #0071e3;
+  --color-primary-dark: #005ac2;
+  --color-primary-light: #2997ff;
+  --color-primary-hover: #1884f4;
+  
+  /* Text colors */
+  --color-text-light: #1f2937;
+  --color-text-dark: #f3f4f6;
+  --color-text-muted: #6b7280;
+  --color-text-muted-dark: #9ca3af;
+  
+  /* Background colors */
+  --color-bg-light: #f5f5f7;
+  --color-bg-dark: #111827;
+  --color-bg-card: #ffffff;
+  --color-bg-card-dark: #1f2937;
+  --color-bg-hover: #f8fafc;
+  --color-bg-dark-hover: #2d3748;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: var(--color-primary-light);
+    --color-text: var(--color-text-dark);
+    --color-bg: var(--color-bg-dark);
+    --color-card-bg: var(--color-bg-card-dark);
+  }
+}
+
+/* Base styles */
+body {
+  color: var(--color-text-light);
+  background-color: var(--color-bg-light);
+}
+
+.dark body {
+  color: var(--color-text-dark);
+  background-color: var(--color-bg-dark);
+}
+
+/* Card styles */
+.card,
+.card-like {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-light);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark .card,
+.dark .card-like {
+  background-color: var(--color-bg-card-dark);
+  color: var(--color-text-dark);
+}
+
+/* Button styles */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-light);
+}
+
+.dark .btn-secondary {
+  background-color: var(--color-bg-dark-hover);
+  color: var(--color-text-dark);
+}
+
+/* Text styles */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-light);
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: var(--color-text-dark);
+}
+
+p {
+  color: var(--color-text-light);
+}
+
+.dark p {
+  color: var(--color-text-dark);
+}
+
+/* Form elements */
+input,
+select,
+textarea {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-light);
+  border: 1px solid var(--color-text-muted);
+  border-radius: 8px;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--color-bg-card-dark);
+  color: var(--color-text-dark);
+  border-color: var(--color-text-muted-dark);
+}
