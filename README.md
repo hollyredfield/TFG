@@ -123,4 +123,4 @@ Gracias especiales a:
 
 ---
 
-*Desarrollado con pasión y ❤️ por [TU_NOMBRE]*
+*Desarrollado con pasión y ❤️ por [Holly]*
