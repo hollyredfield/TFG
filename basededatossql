@@ -333,30 +333,92 @@ SELECT id, SPLIT_PART(email, '@', 1)
 FROM auth.users
 WHERE id NOT IN (SELECT id FROM public.perfiles_usuario);
 
+-- =============================================
+-- DATOS DE- PERFILES DE USUARIO
+-- =============================================
 
+-- Insertar perfiles de ejemplo (usando UUIDs ficticios para demo)
+INSERT INTO perfiles_usuario (id, nombre_usuario, url_avatar, biografia, puntuacion_reputacion, esta_verificado) VALUES
+('550e8400-e29b-41d4-a716-446655440001', 'cazachollos_pro', 'https://avatar.example.com/1.jpg', 'Experto en encontrar las mejores ofertas tecnológicas', 850, true),
+('550e8400-e29b-41d4-a716-446655440002', 'ofertas_moda', 'https://avatar.example.com/2.jpg', 'Siempre al día con las últimas tendencias y descuentos', 620, true),
+('550e8400-e29b-41d4-a716-446655440003', 'gamer_deals', 'https://avatar.example.com/3.jpg', 'Gaming es mi pasión, ahorro es mi objetivo', 720, false),
+('550e8400-e29b-41d4-a716-446655440004', 'hogar_smart', 'https://avatar.example.com/4.jpg', 'Decorando mi hogar con las mejores ofertas', 450, false),
+('550e8400-e29b-41d4-a716-446655440005', 'viajero_low_cost', 'https://avatar.example.com/5.jpg', 'Viajando por el mundo sin romper el banco', 380, false)
+ON CONFLICT (id) DO NOTHING;
 
+-- =============================================
+-- DATOS OFERTAS
+-- =============================================
 
+-- Ofertas de Tecnología
+INSERT INTO ofertas (titulo, descripcion, precio_actual, precio_original, url, url_imagen, tienda, id_usuario, id_categoria, expira_en) VALUES
+('iPhone 15 Pro 128GB', 'El último iPhone de Apple con chip A17 Pro y cámara de 48MP. Incluye cargador inalámbrico gratis.', 999.99, 1199.99, 'https://ejemplo-tienda.com/iphone15pro', 'https://ejemplo-images.com/iphone15.jpg', 'TechStore', '550e8400-e29b-41d4-a716-446655440001', (SELECT id FROM categorias WHERE slug = 'tecnologia'), NOW() + INTERVAL '7 days'),
+('MacBook Air M2', 'Portátil Apple con chip M2, 8GB RAM y 256GB SSD. Perfecto para trabajo y estudios.', 1049.99, 1249.99, 'https://ejemplo-tienda.com/macbook-air', 'https://ejemplo-images.com/macbook.jpg', 'AppleStore', '550e8400-e29b-41d4-a716-446655440001', (SELECT id FROM categorias WHERE slug = 'informatica'), NOW() + INTERVAL '5 days'),
+('Samsung Galaxy S24', 'Smartphone Android con cámara de 200MP y pantalla Dynamic AMOLED 2X.', 749.99, 899.99, 'https://ejemplo-tienda.com/galaxy-s24', 'https://ejemplo-images.com/galaxy.jpg', 'Samsung', '550e8400-e29b-41d4-a716-446655440001', (SELECT id FROM categorias WHERE slug = 'electronica'), NOW() + INTERVAL '10 days'),
 
+-- Ofertas de Videojuegos
+('PlayStation 5 + Spider-Man 2', 'Consola PS5 con el juego Spider-Man 2 incluido. Stock limitado.', 499.99, 569.99, 'https://ejemplo-tienda.com/ps5-bundle', 'https://ejemplo-images.com/ps5.jpg', 'GameStop', '550e8400-e29b-41d4-a716-446655440003', (SELECT id FROM categorias WHERE slug = 'videojuegos'), NOW() + INTERVAL '3 days'),
+('The Legend of Zelda: Tears of the Kingdom', 'La última aventura de Link en Nintendo Switch. Juego del año 2023.', 49.99, 69.99, 'https://ejemplo-tienda.com/zelda-totk', 'https://ejemplo-images.com/zelda.jpg', 'Nintendo Store', '550e8400-e29b-41d4-a716-446655440003', (SELECT id FROM categorias WHERE slug = 'videojuegos'), NOW() + INTERVAL '14 days'),
 
+-- Ofertas de Moda
+('Zapatillas Nike Air Max 270', 'Zapatillas deportivas con tecnología Air Max. Disponibles en varios colores.', 89.99, 139.99, 'https://ejemplo-tienda.com/nike-air-max', 'https://ejemplo-images.com/nike.jpg', 'Nike', '550e8400-e29b-41d4-a716-446655440002', (SELECT id FROM categorias WHERE slug = 'moda'), NOW() + INTERVAL '6 days'),
+('Chaqueta Adidas Originals', 'Chaqueta vintage estilo retro. Perfecta para el otoño.', 59.99, 89.99, 'https://ejemplo-tienda.com/adidas-jacket', 'https://ejemplo-images.com/adidas.jpg', 'Adidas', '550e8400-e29b-41d4-a716-446655440002', (SELECT id FROM categorias WHERE slug = 'moda'), NOW() + INTERVAL '8 days'),
 
+-- Ofertas de Hogar
+('Robot Aspirador Roomba i7+', 'Robot aspirador inteligente con base de autovaciado. Compatible con Alexa.', 399.99, 599.99, 'https://ejemplo-tienda.com/roomba-i7', 'https://ejemplo-images.com/roomba.jpg', 'iRobot', '550e8400-e29b-41d4-a716-446655440004', (SELECT id FROM categorias WHERE slug = 'hogar'), NOW() + INTERVAL '12 days'),
+('Set de Sartenes Antiadherentes', 'Juego de 5 sartenes con revestimiento cerámico. Aptas para lavavajillas.', 79.99, 129.99, 'https://ejemplo-tienda.com/sartenes-set', 'https://ejemplo-images.com/sartenes.jpg', 'CocinaMax', '550e8400-e29b-41d4-a716-446655440004', (SELECT id FROM categorias WHERE slug = 'hogar'), NOW() + INTERVAL '9 days'),
 
+-- Ofertas de Viajes
+('Vuelo Madrid-París ida y vuelta', 'Vuelos directos con Iberia. Incluye equipaje de mano.', 89.99, 159.99, 'https://ejemplo-viajes.com/madrid-paris', 'https://ejemplo-images.com/paris.jpg', 'Iberia', '550e8400-e29b-41d4-a716-446655440005', (SELECT id FROM categorias WHERE slug = 'viajes'), NOW() + INTERVAL '4 days'),
+('Hotel 4* Barcelona Centro', 'Hotel boutique en el centro de Barcelona. Desayuno incluido.', 79.99, 129.99, 'https://ejemplo-hoteles.com/barcelona', 'https://ejemplo-images.com/hotel.jpg', 'Booking.com', '550e8400-e29b-41d4-a716-446655440005', (SELECT id FROM categorias WHERE slug = 'viajes'), NOW() + INTERVAL '15 days'),
 
-DROP VIEW IF EXISTS vista_estadisticas_categorias;
-CREATE VIEW vista_estadisticas_categorias AS
-SELECT 
-    c.id,
-    c.nombre,
-    c.slug,
-    c.icono,
-    c.descripcion,
-    c.color,
-    c.orden_visualizacion,
-    COUNT(o.id) as total_ofertas,
-    COUNT(o.id) FILTER (WHERE NOT o.ha_expirado) as ofertas_activas,
-    COALESCE(AVG(o.porcentaje_descuento) FILTER (WHERE o.porcentaje_descuento IS NOT NULL), 0) AS descuento_promedio
-FROM 
-    categorias c
-LEFT JOIN 
-    ofertas o ON c.id = o.id_categoria
-GROUP BY 
-    c.id, c.nombre, c.slug, c.icono, c.descripcion, c.color, c.orden_visualizacion;
+-- Ofertas de Deportes
+('Bicicleta de Montaña Trek', 'Mountain bike con suspensión delantera y 21 velocidades.', 449.99, 599.99, 'https://ejemplo-tienda.com/trek-mtb', 'https://ejemplo-images.com/bici.jpg', 'Decathlon', '550e8400-e29b-41d4-a716-446655440003', (SELECT id FROM categorias WHERE slug = 'deportes'), NOW() + INTERVAL '11 days'),
+
+-- Ofertas de Libros
+('Colección Harry Potter Completa', 'Los 7 libros de Harry Potter en edición especial con tapa dura.', 89.99, 149.99, 'https://ejemplo-tienda.com/harry-potter', 'https://ejemplo-images.com/hp.jpg', 'Casa del Libro', '550e8400-e29b-41d4-a716-446655440002', (SELECT id FROM categorias WHERE slug = 'libros'), NOW() + INTERVAL '20 days'),
+
+-- Ofertas de Alimentación
+('Jamón Ibérico 5J', 'Jamón ibérico de bellota 24 meses de curación. Cortado a mano.', 149.99, 199.99, 'https://ejemplo-tienda.com/jamon-5j', 'https://ejemplo-images.com/jamon.jpg', 'El Corte Inglés', '550e8400-e29b-41d4-a716-446655440004', (SELECT id FROM categorias WHERE slug = 'alimentacion'), NOW() + INTERVAL '7 days'),
+
+-- Ofertas de Belleza
+('Set Skincare The Ordinary', 'Rutina completa de cuidado facial con ácido hialurónico y niacinamida.', 29.99, 49.99, 'https://ejemplo-tienda.com/the-ordinary', 'https://ejemplo-images.com/skincare.jpg', 'Sephora', '550e8400-e29b-41d4-a716-446655440002', (SELECT id FROM categorias WHERE slug = 'belleza'), NOW() + INTERVAL '13 days'),
+
+-- Ofertas de Mascotas
+('Cama Ortopédica para Perros', 'Cama de espuma viscoelástica para perros grandes. Funda lavable.', 49.99, 79.99, 'https://ejemplo-tienda.com/cama-perro', 'https://ejemplo-images.com/cama.jpg', 'Kiwoko', '550e8400-e29b-41d4-a716-446655440004', (SELECT id FROM categorias WHERE slug = 'mascotas'), NOW() + INTERVAL '16 days'),
+
+-- Ofertas de Juguetes
+('LEGO Creator 3 en 1', 'Set de construcción LEGO con 3 modelos diferentes. 500+ piezas.', 39.99, 59.99, 'https://ejemplo-tienda.com/lego-creator', 'https://ejemplo-images.com/lego.jpg', 'ToysRUs', '550e8400-e29b-41d4-a716-446655440005', (SELECT id FROM categorias WHERE slug = 'juguetes'), NOW() + INTERVAL '18 days');
+
+-- =============================================
+-- DATOS DE EJEMPLO - VOTOS
+-- =============================================
+
+-- Insertar algunos votos de ejemplo
+INSERT INTO votos (id_oferta, id_usuario, tipo_voto) VALUES
+((SELECT id FROM ofertas WHERE titulo = 'iPhone 15 Pro 128GB'), '550e8400-e29b-41d4-a716-446655440002', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'iPhone 15 Pro 128GB'), '550e8400-e29b-41d4-a716-446655440003', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'iPhone 15 Pro 128GB'), '550e8400-e29b-41d4-a716-446655440004', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'PlayStation 5 + Spider-Man 2'), '550e8400-e29b-41d4-a716-446655440001', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'PlayStation 5 + Spider-Man 2'), '550e8400-e29b-41d4-a716-446655440002', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'Zapatillas Nike Air Max 270'), '550e8400-e29b-41d4-a716-446655440001', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'Robot Aspirador Roomba i7+'), '550e8400-e29b-41d4-a716-446655440003', 'up'),
+((SELECT id FROM ofertas WHERE titulo = 'Robot Aspirador Roomba i7+'), '550e8400-e29b-41d4-a716-446655440005', 'down');
+
+-- =============================================
+-- DATOS DE EJEMPLO - COMENTARIOS
+-- =============================================
+
+-- Inserción de comentarios
+INSERT INTO comentarios (id_oferta, id_usuario, contenido) VALUES
+((SELECT id FROM ofertas WHERE titulo = 'iPhone 15 Pro 128GB'), '550e8400-e29b-41d4-a716-446655440002', '¡Excelente precio! Ya lo he pedido y llegó en 24h'),
+((SELECT id FROM ofertas WHERE titulo = 'iPhone 15 Pro 128GB'), '550e8400-e29b-41d4-a716-446655440003', 'Cuidado que en otras tiendas está más barato, comparad precios'),
+((SELECT id FROM ofertas WHERE titulo = 'PlayStation 5 + Spider-Man 2'), '550e8400-e29b-41d4-a716-446655440001', 'Al fin conseguí una PS5 a buen precio. El juego viene sellado'),
+((SELECT id FROM ofertas WHERE titulo = 'Zapatillas Nike Air Max 270'), '550e8400-e29b-41d4-a716-446655440004', 'Las uso para correr y son muy cómodas. Recomendadas 100%'),
+((SELECT id FROM ofertas WHERE titulo = 'Robot Aspirador Roomba i7+'), '550e8400-e29b-41d4-a716-446655440005', 'Tengo el modelo anterior y me ha cambiado la vida. Este es aún mejor');
+
+-- Actualizar contadores de votos y comentarios
+UPDATE ofertas SET 
+    votos_positivos = (SELECT COUNT(*) FROM votos WHERE votos.id_oferta = ofertas.id AND tipo_voto = 'up'),
+    votos_negativos = (SELECT COUNT(*) FROM votos WHERE votos.id_oferta = ofertas.id AND tipo_voto = 'down'),
+    contador_comentarios = (SELECT COUNT(*) FROM comentarios WHERE comentarios.id_oferta = ofertas.id);
