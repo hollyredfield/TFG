@@ -1,5 +1,5 @@
 -- =============================================
--- DATOS DE EJEMPLO PARA CAZAOFERTAS
+-- DATOS PARA CAZAOFERTAS
 -- Productos, Servicios y Datos de Usuario
 -- =============================================
 
