@@ -113,7 +113,6 @@ Aunque Cazaofertas está optimizado como una aplicación web, también ofrezco u
 
 Gracias especiales a:
 
-- [Menciona aquí personas relevantes]
 - La comunidad de desarrolladores
 - Usuarios que han proporcionado feedback
 
